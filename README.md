@@ -1,16 +1,15 @@
-# proyecto
+# Proyecto "Lugares"
+Nota: El nombre final del proyecto/aplicación no es ese.
 
-A new Flutter project.
+Este proyecto tiene como finalidad crear una aplicación móvil que contenga
+lugares interesantes a los que ir con tu familia, amigos o pareja, lugares
+como parques, cines, teatros, plazas, restaurantes, centros de cultura,
+centros de diversión, entre otros.
 
-## Getting Started
+La idea es que funcione como un catálogo en el que puedas ver qué lugares 
+puedes visitar, en dónde se encuentra y cuál es su horario, y así poder
+agendar tú una visita a ese lugar en tu calendario el cuál te avisará 
+según lo hayas configurado.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Tecnologías
+Para este proyecto se usó Android Studio, Flutter y Dart.
