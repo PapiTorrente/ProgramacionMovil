@@ -34,6 +34,7 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
   final PageController _controladorPagina = PageController(initialPage: 0); //Controlador de la página
   List<Widget> _paginas=[];
 
+  //FUNCIÓN PARA MOSTRAR LA TARJETA GRANDE
   void mostrarTarjetota(int i){
     showDialog(
       builder: (context){
@@ -140,6 +141,30 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                                       ),
                                       Text(
                                         "Horario:",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                            )
+                        ),
+
+                        //TEXTO DEL ENLACE WEB
+                        Flexible(
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Container(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.link,
+                                        size: 19,
+                                      ),
+                                      Text(
+                                        "Sitio Web:",
                                         style: TextStyle(
                                             fontSize: 18,
                                             color: Colors.black
