@@ -44,12 +44,12 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                   Text(
                       "¡Hola!",
                       style: TextStyle(
-                          fontSize: 34,
+                          fontSize: 50,
                           fontWeight: FontWeight.bold
                       )
                   ),
                   Text(
-                      "¿A dónde irás hoy",
+                      "¿A dónde irás hoy?",
                       style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold
@@ -60,11 +60,12 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
         ),
 
         /* CÓDIGO DE LA TARJETA */
+
         Flexible( // Tarjeta
             child: Container(
               height: 160,
-              padding: EdgeInsets.all(4), // Hacia adentro
-              margin: EdgeInsets.all(10), // Hacia afuera
+              padding: EdgeInsets.all(4), //Hacia adentro
+              margin: EdgeInsets.all(10), //Hacia afuera
               decoration: BoxDecoration(
                   color: Colors.pinkAccent,
                   border: Border.all(
@@ -73,7 +74,9 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                   ),
                   borderRadius: BorderRadius.circular(8)
               ),
-              child: Flexible( //Ajuste a todo el espacio disponible
+
+              //CONTENIDO DENTRO  DE LA TARJETA
+              child: Flexible(
                   child: Container(
                     child: Column(
                       children: [
@@ -84,9 +87,11 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                           ),
                           height: 76,
                         ),
-                        Flexible( //Texto de Titulo
+
+                        //TEXTO DEL TITULO
+                        Flexible(
                             child: Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: Alignment.topLeft,
                               child: Text(
                                 "Titulo",
                                 style: TextStyle(
@@ -96,7 +101,9 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                               ),
                             )
                         ),
-                        Flexible( //Contenedor de botón
+
+                        //CONTENEDOR DEL BOTÓN
+                        Flexible(
                             child: Align(
                               alignment: Alignment.bottomRight,
                               child: ElevatedButton(
@@ -118,7 +125,115 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
               ),
             )
         )
+
         /* FIN DEL CÓDIGO DE LA TARJETA */
+
+        /* CÓDIGO DE LA TARJETA GRANDE */
+        /*
+        Flexible(
+            child: Container(
+              height: 450,
+              padding: EdgeInsets.all(4), // Hacia adentro
+              margin: EdgeInsets.all(10), // Hacia afuera
+              decoration: BoxDecoration(
+                  color: Colors.pinkAccent,
+                  border: Border.all(
+                      width: 4,
+                      color: Colors.pink
+                  ),
+                  borderRadius: BorderRadius.circular(8)
+              ),
+
+              //CONTENIDO DENTRO DE LA TARJETA
+              child: Flexible(
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Container( //CONTENEDOR PARA LA IMAGEN
+                          height: 170,
+                          decoration: BoxDecoration( //DECORACIÓN DEL BORDE
+                              border: Border.all(width: 4),
+                              borderRadius: BorderRadius.circular(8)
+                          )
+                        ),
+
+                        //TEXTO DEL TITULO
+                        Flexible(
+                            flex: 0,
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                "Titulo",
+                                style: TextStyle(
+                                    fontSize: 26,
+                                    color: Colors.black
+                                ),
+                              )
+                            )
+                        ),
+
+                        //TEXTO DE LA DESCRIPCIÓN
+                        Flexible(
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                "Descripción:",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black
+                                ),
+                              ),
+                            )
+                        ),
+
+                        //ESPACIO PARA LOS BOTONES
+                        Row(
+                          children: [
+                            //CONTENEDOR DEL BOTÓN PARA AGREGAR EVENTO
+                            Flexible(
+                                child: Align(
+                                  alignment: Alignment.bottomLeft,
+                                  child: ElevatedButton(
+                                      onPressed: (){
+                                        print("Presionado Boton1");
+                                      },
+                                      child: Text(
+                                        "Agregar Lugar",
+                                        style: TextStyle(
+                                            color: Colors.black
+                                        ),
+                                      )
+                                  ),
+                                )
+                            ),
+
+                            //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA
+                            Flexible(
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: ElevatedButton(
+                                      onPressed: (){
+                                        print("Presionado Boton2");
+                                      },
+                                      child: Text(
+                                        "Cerrar",
+                                        style: TextStyle(
+                                            color: Colors.black
+                                        ),
+                                      )
+                                  ),
+                                )
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+              ),
+            )
+        )
+        */
+        /* FIN DEL CÓDIGO DE LA TARJETA GRANDE */
 
       ],
     ),
@@ -127,34 +242,21 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
     /* CÓDIGO PARA EL CALENDARIO */
     Column(
       children: [
+        //Texto de la sección del calendario
         Container(
-          //color: Colors.green, //Color para ¿debug?
           padding: EdgeInsets.only(top: 18),
           child: Text(
-              "Calendario de Eventos",
+              "Tu Calendario de Eventos",
               style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.bold
               )
           ),
         ),
-        Flexible( //Calendario
-            child: Container(
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration( //Decoración del borde
-                  border: Border.all(
-                      width: 4,
-                      color: Colors.pink
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.pinkAccent
-              ),
-            )
-        ),
-        Container( //¿Botón?
-          color: Colors.deepOrange,
-          height: 60,
-          margin: EdgeInsets.only(left: 10.0, top: 0.0, right: 10.0, bottom: 10.0),
+
+        //Placeholder para el calendario
+        Placeholder(
+
         )
       ],
     )
