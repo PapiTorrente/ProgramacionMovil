@@ -60,7 +60,7 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
         ),
 
         /* CÓDIGO DE LA TARJETA */
-
+        /*
         Flexible( // Tarjeta
             child: Container(
               height: 160,
@@ -125,11 +125,11 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
               ),
             )
         )
-
+        */
         /* FIN DEL CÓDIGO DE LA TARJETA */
 
         /* CÓDIGO DE LA TARJETA GRANDE */
-        /*
+
         Flexible(
             child: Container(
               height: 450,
@@ -176,13 +176,71 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                         Flexible(
                             child: Align(
                               alignment: Alignment.topLeft,
-                              child: Text(
-                                "Descripción:",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.black
+                              child: Container(
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                        Icons.text_snippet_outlined,
+                                        size: 19,
+                                    ),
+                                    Text(
+                                      "Descripción:",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                            )
+                        ),
+
+                        //TEXTO DEL HORARIO
+                        Flexible(
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                        Icons.location_on_outlined,
+                                        size: 19,
+                                    ),
+                                    Text(
+                                      "Ubicación:",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                        ),
+
+                        //TEXTO DE LA UBICACIÓN
+                        Flexible(
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                        Icons.access_time_outlined,
+                                        size: 19,
+                                    ),
+                                    Text(
+                                      "Horario:",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             )
                         ),
 
@@ -232,7 +290,7 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
               ),
             )
         )
-        */
+
         /* FIN DEL CÓDIGO DE LA TARJETA GRANDE */
 
       ],
