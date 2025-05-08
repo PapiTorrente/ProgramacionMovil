@@ -1,6 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  //WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const ExploraCDMX_app());
 }
 
@@ -71,7 +78,7 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
                             child: Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Titulo",
+                                  "Título",
                                   style: TextStyle(
                                       fontSize: 26,
                                       color: Colors.black
@@ -287,16 +294,37 @@ class _pPrincipalState extends State<pPrincipal> { //Con barra baja es una varia
 
                           //TEXTO DEL TITULO
                           Flexible(
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  "Titulo",
-                                  style: TextStyle(
-                                      fontSize: 26,
-                                      color: Colors.black
-                                  ),
-                                ),
-                              )
+                            child: FutureBuilder<QuerySnapshot>(
+                              future: FirebaseFirestore.instance.collection('coleccion-lugares').get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                                  return const Text('No hay lugares');
+                                }
+
+                                final lugares = snapshot.data!.docs;
+
+                                return ListView.builder(
+                                  shrinkWrap: true, // importante dentro de Flexible
+                                  itemCount: lugares.length,
+                                  itemBuilder: (context, index) {
+                                    final data = lugares[index].data() as Map<String, dynamic>;
+                                    final nombre = data['nombre'] ?? 'Sin nombre';
+
+                                    return Text(
+                                      'Nombre: $nombre',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           ),
 
                           //CONTENEDOR DEL BOTÓN
