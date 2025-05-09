@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart'; //Import del calendario
 import 'package:flex_color_picker/flex_color_picker.dart'; //Import del selector de color
 import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart'; //Import del selector de fechas
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 //IMPORTS PARA LA BASE DE DATOS
 //import 'package:firebase_core/firebase_core.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() { //async
+Future<void> main() async {
   //WidgetsFlutterBinding.ensureInitialized();
-  //await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const ExploraCDMX_app());
 }
 
@@ -121,17 +125,37 @@ class _pPrincipalState extends State<pPrincipal> {
 
                           //TEXTO DEL TITULO DE LA TARJETA
                           Flexible(
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  "Titulo",
-                                  style: TextStyle(
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black
-                                  ),
-                                ),
-                              )
+                            child: FutureBuilder<QuerySnapshot>(
+                              future: FirebaseFirestore.instance.collection('coleccion-lugares').get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                                  return const Text('No hay lugares');
+                                }
+
+                                final lugares = snapshot.data!.docs;
+
+                                return ListView.builder(
+                                  shrinkWrap: true, // importante dentro de Flexible
+                                  itemCount: lugares.length,
+                                  itemBuilder: (context, index) {
+                                    final data = lugares[index].data() as Map<String, dynamic>;
+                                    final descripcion = data['nombre'] ?? 'Sin descripción';
+
+                                    return Text(
+                                      'Descripción: $descripcion',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           ),
 
                           //CONTENEDOR DEL BOTÓN DE LA TARJETA
