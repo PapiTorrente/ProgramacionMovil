@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart'; //Import del calendario
+import 'package:flex_color_picker/flex_color_picker.dart'; //Import del selector de color
+import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart'; //Import del selector de fechas
+
+//IMPORTS PARA LA BASE DE DATOS
 //import 'package:firebase_core/firebase_core.dart';
 //import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
-//import 'package:flex_color_picker/flex_color_picker.dart';
 
 void main() { //async
   //WidgetsFlutterBinding.ensureInitialized();
@@ -44,14 +46,16 @@ class _pPrincipalState extends State<pPrincipal> {
   List<Widget> _paginas=[]; //Lista de widgets para poner en la página
 
   //VARIABLES PARA USAR EL CALENDARIO
+  DateTime? _fechaInicio = DateTime.now();
+  DateTime? _fechaFinalizacion = DateTime.now();
+  int ? _colorElegido; //Almacena el color del evento
+  final List<Map<String,dynamic>> _visitas=[]; //Lista para almacenar los datos de los eventos
+
+  //VARIABLES PARA LA BASE DE DATOS
   /*
   FirebaseFirestore db = FirebaseFirestore.instance; //Instancia de base de datos para interactuar con ella.
   final List<Meeting> meetings = <Meeting>[]; //Lista de objetos "Meeting" para mostrar en el widget del calendario
   final List<String> _nombresEventos=[]; //Lista para almacenar IDs de los eventos
-  final List<Map<String,dynamic>> _eventos=[]; //Lista para almacenar los datos de los eventos
-  DateTime? _fechaIn = DateTime.now(); //Fecha y hora de inicio
-  DateTime? _fechaFin = DateTime.now(); //Fecha y hora de finalización
-  int ? _color; //Almacena el color del evento
    */
   
   /* PÁGINAS */
@@ -70,6 +74,7 @@ class _pPrincipalState extends State<pPrincipal> {
                     Text(
                         "¡Hola!",
                         style: TextStyle(
+                            fontFamily: 'Roboto',
                             fontSize: 50,
                             fontWeight: FontWeight.bold
                         )
@@ -86,7 +91,6 @@ class _pPrincipalState extends State<pPrincipal> {
           ),
 
           /* CÓDIGO DE LA TARJETA */
-
           Flexible( // Tarjeta
               child: Container(
                 height: 160,
@@ -114,7 +118,7 @@ class _pPrincipalState extends State<pPrincipal> {
                             height: 76,
                           ),
 
-                          //TEXTO DEL TITULO
+                          //TEXTO DEL TITULO DE LA TARJETA
                           Flexible(
                               child: Align(
                                 alignment: Alignment.topLeft,
@@ -122,19 +126,20 @@ class _pPrincipalState extends State<pPrincipal> {
                                   "Titulo",
                                   style: TextStyle(
                                       fontSize: 26,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.black
                                   ),
                                 ),
                               )
                           ),
 
-                          //CONTENEDOR DEL BOTÓN
+                          //CONTENEDOR DEL BOTÓN DE LA TARJETA
                           Flexible(
                               child: Align(
                                 alignment: Alignment.bottomRight,
                                 child: ElevatedButton(
                                     onPressed: (){
-                                      mostrarTarjetota(0);
+                                      mostrarTarjetaGrande(0);
                                     },
                                     child: Text(
                                       "Más",
@@ -151,7 +156,6 @@ class _pPrincipalState extends State<pPrincipal> {
                 ),
               )
           )
-
           /* FIN DEL CÓDIGO DE LA TARJETA */
         ],
       ),
@@ -164,9 +168,9 @@ class _pPrincipalState extends State<pPrincipal> {
           Container(
             padding: EdgeInsets.only(top: 18),
             child: Text(
-                "Tu Calendario de Eventos",
+                "Calendario",
                 style: TextStyle(
-                    fontSize: 34,
+                    fontSize: 40,
                     fontWeight: FontWeight.bold
                 )
             ),
@@ -175,7 +179,14 @@ class _pPrincipalState extends State<pPrincipal> {
           //Calendario
           Flexible(
               child: Container(
-                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10), //Hacia afuera
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 4,
+                    color: Colors.pink
+                  ),
+                  borderRadius: BorderRadius.circular(8)
+                ),
                 child: SfCalendar(
                   view: CalendarView.month,
                   initialSelectedDate: DateTime.now(),
@@ -200,13 +211,12 @@ class _pPrincipalState extends State<pPrincipal> {
           )
         ],
       )
-      
       /* FIN CÓDIGO PARA EL CALENDARIO */
     ];
   }
 
   /* FUNCIÓN PARA MOSTRAR LA TARJETA GRANDE */
-  void mostrarTarjetota(int i){
+  void mostrarTarjetaGrande(int idBD){
     showDialog(
       builder: (context){
         return Flexible(
@@ -223,12 +233,12 @@ class _pPrincipalState extends State<pPrincipal> {
                   borderRadius: BorderRadius.circular(8)
               ),
 
-              //CONTENIDO DENTRO DE LA TARJETA
+              //CONTENIDO DENTRO DE LA TARJETA GRANDE
               child: Flexible(
                   child: Container(
                     child: Column(
                       children: [
-                        Container( //CONTENEDOR PARA LA IMAGEN
+                        Container( //CONTENEDOR PARA LA IMAGEN EN LA TARJETA GRANDE
                             height: 170,
                             decoration: BoxDecoration( //DECORACIÓN DEL BORDE
                                 border: Border.all(width: 4),
@@ -236,7 +246,7 @@ class _pPrincipalState extends State<pPrincipal> {
                             )
                         ),
 
-                        //TEXTO DEL TITULO
+                        //TEXTO DEL TITULO DE LA TARJETA GRANDE
                         Flexible(
                             flex: 0,
                             child: Align(
@@ -245,7 +255,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                   "Titulo",
                                   style: TextStyle(
                                       fontSize: 26,
-                                      color: Colors.black
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
                                   ),
                                 )
                             )
@@ -266,7 +277,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                       "Descripción:",
                                       style: TextStyle(
                                           fontSize: 18,
-                                          color: Colors.black
+                                          color: Colors.black,
+                                          decoration: TextDecoration.none
                                       ),
                                     ),
                                   ],
@@ -290,7 +302,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                       "Ubicación:",
                                       style: TextStyle(
                                           fontSize: 18,
-                                          color: Colors.black
+                                          color: Colors.black,
+                                          decoration: TextDecoration.none
                                       ),
                                     ),
                                   ],
@@ -314,7 +327,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                         "Horario:",
                                         style: TextStyle(
                                             fontSize: 18,
-                                            color: Colors.black
+                                            color: Colors.black,
+                                            decoration: TextDecoration.none
                                         ),
                                       ),
                                     ],
@@ -338,7 +352,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                         "Sitio Web:",
                                         style: TextStyle(
                                             fontSize: 18,
-                                            color: Colors.black
+                                            color: Colors.black,
+                                            decoration: TextDecoration.none
                                         ),
                                       ),
                                     ],
@@ -347,7 +362,7 @@ class _pPrincipalState extends State<pPrincipal> {
                             )
                         ),
 
-                        //ESPACIO PARA LOS BOTONES
+                        //ESPACIO PARA LOS BOTONES DE LA TARJETA GRANDE
                         Row(
                           children: [
                             //CONTENEDOR DEL BOTÓN PARA AGREGAR EVENTO
@@ -356,10 +371,11 @@ class _pPrincipalState extends State<pPrincipal> {
                                   alignment: Alignment.bottomLeft,
                                   child: ElevatedButton(
                                       onPressed: (){
-                                        print("Presionado Boton1");
+                                        Navigator.of(context).pop();
+                                        agregarAlCalendario(0);
                                       },
                                       child: Text(
-                                        "Agregar Lugar",
+                                        "Agendar",
                                         style: TextStyle(
                                             color: Colors.black
                                         ),
@@ -368,7 +384,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                 )
                             ),
 
-                            //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA
+                            //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA GRANDE
                             Flexible(
                                 child: Align(
                                   alignment: Alignment.bottomRight,
@@ -398,6 +414,217 @@ class _pPrincipalState extends State<pPrincipal> {
     );
   }
 
+  void agregarAlCalendario(int idBD){
+    showDialog(
+      builder: (context){
+        return Flexible(
+            child: Container(
+              height: 200,
+              padding: EdgeInsets.all(4), // Hacia adentro
+              margin: EdgeInsets.all(10), // Hacia afuera
+              decoration: BoxDecoration(
+                  color: Colors.pinkAccent,
+                  border: Border.all(
+                      width: 4,
+                      color: Colors.pink
+                  ),
+                  borderRadius: BorderRadius.circular(8)
+              ),
+
+              //CONTENIDO DENTRO DE LA TARJETA DE AGREGAR AL CALENDARIO
+              child: Flexible(
+                  child: Column(
+                    children: [
+
+                      //CONTENEDOR PARA EL TEXTO DE LA FECHA DE INICIO
+                      Flexible(
+                        flex: 0,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.pink.shade600,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      width: 3,
+                                      color: Colors.pink.shade700
+                                  )
+                              ),
+                              child: Column(
+                                children: [
+                                    Text(
+                                      "Día y hora de Inicio:",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                          decoration: TextDecoration.none
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      child: CupertinoCalendarPickerButton(
+                                        buttonDecoration: PickerButtonDecoration(
+                                            backgroundColor: Colors.pink.shade700
+                                        ),
+                                        minimumDateTime: DateTime(2024, 7, 10),
+                                        maximumDateTime: DateTime(2025, 7, 10),
+                                        initialDateTime: DateTime.now(),
+                                        currentDateTime: DateTime.now(),
+                                        mode: CupertinoCalendarMode.dateTime,
+                                        timeLabel: 'Inicio',
+                                        onDateTimeChanged: (date) {
+                                          _fijarFechaInicial(date);
+                                        },),
+                                    ),
+                                ],
+                              ),
+                            )
+                          )
+                      ),
+
+                      //CONTENEDOR PARA EL TEXTO DE LA FECHA DE FINALIZACIÓN
+                      Flexible(
+                        flex: 0,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                  color: Colors.pink.shade600,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      width: 3,
+                                      color: Colors.pink.shade700
+                                  )
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Día y hora de Finalización:",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    child: CupertinoCalendarPickerButton(
+                                      buttonDecoration: PickerButtonDecoration(
+                                          backgroundColor: Colors.pink.shade700
+                                      ),
+                                      minimumDateTime: DateTime.now(),
+                                      maximumDateTime: DateTime(2080, 12, 12),
+                                      initialDateTime: DateTime.now(),
+                                      currentDateTime: DateTime.now(),
+                                      mode: CupertinoCalendarMode.dateTime,
+                                      timeLabel: 'Final',
+                                      onDateTimeChanged: (date) {
+                                        _fijarFechaFinal(date);
+                                      },),
+                                  ),
+                                ],
+                              ),
+                            )
+                          )
+                      ),
+
+                      //CONTENEDOR PARA LA ELECCIÓN DE COLOR
+                      Flexible(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.pink.shade600,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  width: 3,
+                                  color: Colors.pink.shade700
+                                )
+                              ),
+                              child: ColorPicker(
+                                heading: Text(
+                                  "Elige un color",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
+                                  ),
+                                ),
+                                subheading: Text(
+                                  "Elige la variación",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
+                                  ),
+                                ),
+                                onColorChanged: (value){
+                                  _colorElegido = value.value32bit;
+                                },
+                              ),
+                            )
+                          )
+                      ),
+
+                      //ESPACIO PARA LOS BOTONES DE LA PANTALLA DE AGENDAR EVENTO
+                      Row(
+                        children: [
+                          //CONTENEDOR DEL BOTÓN DE FINALIZAR AGENDA
+                          Flexible(
+                              child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: ElevatedButton(
+                                    onPressed: (){
+                                      _agendarVisitaLugar();
+
+                                      //Reestablece los valores
+                                      _fechaInicio = DateTime.now();
+                                      _fechaFinalizacion = DateTime.now();
+                                      _colorElegido = 0;
+
+                                      //Cierra la tarjeta de agregar
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "¡Todo Listo!",
+                                      style: TextStyle(
+                                          color: Colors.black
+                                      ),
+                                    )
+                                ),
+                              )
+                          ),
+
+                          //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA DE AGENDAR
+                          Flexible(
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: ElevatedButton(
+                                    onPressed: (){
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Cerrar",
+                                      style: TextStyle(
+                                          color: Colors.black
+                                      ),
+                                    )
+                                ),
+                              )
+                          )
+                        ],
+                      )
+                    ],
+                  )
+              ),
+            )
+        );
+      },
+      context: context,
+    );
+  }
+
   /* FUNCIONES PARA CAMBIAR DE PANTALLA EN EL MENÚ BAJO */
   void _itemPresionado(int indice){
     setState(() {
@@ -415,68 +642,37 @@ class _pPrincipalState extends State<pPrincipal> {
       _indiceMenu = indice;
     });
   }
+  /* FIN DE FUNCIONES PARA CAMBIAR DE PANTALLA EN EL MENÚ BAJO */
 
-  /* FUNCIONES PARA EL CALENDARIO */
-  /*
-  void _setMeeting() async{
-    Map<String,dynamic> datos = {
-      "color":_color,
-      "fechaFinal":_fechaFin,
-      "fechaInicio":_fechaIn,
+  /* FUNCIONES PARA AGENDAR EVENTOS EN EL CALENDARIO */
+  void _fijarFechaInicial(DateTime fechaNueva){
+    setState(() { _fechaInicio = fechaNueva; });
+  }
+
+  void _fijarFechaFinal(DateTime fechaNueva){
+    setState(() { _fechaFinalizacion = fechaNueva; });
+  }
+
+  void _agendarVisitaLugar() async{
+    Map<String, dynamic> datos = {
+      "fechaInicio":_fechaInicio,
+      "fechaFinalizacion":_fechaFinalizacion,
+      "color":_colorElegido
     };
+    //await db.collection("visita").doc(_nombreEvento.text).set(datos);
   }
 
-  void _getMeeting() async{
-    QuerySnapshot eventos = await db.collection("eventos").get();
-    for(DocumentSnapshot evento in eventos.docs){
-      _nombresEventos.add(evento.id);
-      _eventos.add(evento.data() as Map<String,dynamic>);
+  //ARREGLAR ESTA PARTE
+  void _obtenerVisitaLugar() async{
+    //QuerySnapshot visitas = await db.collection("visita").get();
+    /*
+    for(DocumentSnapshot visita in visitas.docs){
+      _visitas.add(visita.data() as Map<String, dynamic>);
     }
-    setState(() {
-
-    });
+     */
+    setState(() {  });
   }
-
-  void _fijarFechaInicial(DateTime fechaNue){
-    setState(() {
-      _fechaIn=fechaNue;
-    });
-  }
-
-  void _fijarFechaFinal(DateTime fechaNue){
-    setState(() {
-      _fechaFin=fechaNue;
-    });
-  }
-
-  void _muestraColor(){
-    showDialog(context: context, builder: (BuildContext context)
-    {
-      return AlertDialog(
-        title: const Text("Color"),
-        content: ColorPicker(
-          onColorChanged: (value){
-            _color=value.value32bit;
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text("Aceptar"),
-          ),
-        ],
-      );
-    });
-  }
-  */
+  /* FIN FUNCIONES PARA AGENDAR EVENTOS EN EL CALENDARIO */
 
   /* ASPECTO VISUAL DE LA APLICACIÓN*/
   @override
@@ -496,9 +692,11 @@ class _pPrincipalState extends State<pPrincipal> {
 
       /* CÓDIGO DE LA BARRA DE NAVEGACIÓN */
 
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceMenu,
         backgroundColor: Colors.pinkAccent,
+
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black45,
         onTap: _itemPresionado,
@@ -522,7 +720,10 @@ class _pPrincipalState extends State<pPrincipal> {
 
     );
   }
+  /* FIN ASPECTO VISUAL DE LA APLICACIÓN */
 
+
+  //ESTO NO SÉ PARA QUÉ ES
   /*
   List<Meeting> _getDataSource(List<String> nombresEventos, List<Map<String,dynamic>> eventos) {
     for(int i=0;i<nombresEventos.length;i++){
@@ -543,7 +744,6 @@ class _pPrincipalState extends State<pPrincipal> {
   */
 }
 
-/* ESPACIO PARA EL CALENDARIO */
 /*
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Meeting> source) {
