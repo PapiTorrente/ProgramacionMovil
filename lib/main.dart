@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart'; //Import del calendario
 import 'package:flex_color_picker/flex_color_picker.dart'; //Import del selector de color
@@ -252,7 +253,7 @@ class _pPrincipalState extends State<pPrincipal> {
                             child: Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Titulo",
+                                  "Título",
                                   style: TextStyle(
                                       fontSize: 26,
                                       color: Colors.black,
