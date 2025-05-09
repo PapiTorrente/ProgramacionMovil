@@ -1,5 +1,5 @@
-name: proyecto
-description: "A new Flutter project."
+name: Explora
+description: "Una aplicación para explorar la Ciudad de México"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
+  syncfusion_flutter_calendar: ^29.1.38
+  cloud_firestore: ^5.6.7
+  cupertino_calendar_picker: ^2.2.4
+  flex_color_picker: ^3.7.1
   flutter_test:
     sdk: flutter
 
