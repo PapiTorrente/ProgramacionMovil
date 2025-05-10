@@ -62,11 +62,17 @@ class _pPrincipalState extends State<pPrincipal> {
   final List<Meeting> meetings = <Meeting>[]; //Lista de objetos "Meeting" para mostrar en el widget del calendario
   final List<String> _nombresEventos=[]; //Lista para almacenar IDs de los eventos
    */
-  
-  /* PÁGINAS */
+
   @override
   void initState() {
     super.initState();
+    _entrada(); // Llamada al método asíncrono
+  }
+  
+  /* PÁGINAS */
+  @override
+  Future<void> _entrada() async {
+    final snapshot = await FirebaseFirestore.instance.collection('coleccion-lugares').get();
     _paginas = [
 
       /* CÓDIGO PARA LA PÁGINA PRINCIPAL */
@@ -96,7 +102,8 @@ class _pPrincipalState extends State<pPrincipal> {
           ),
 
           /* CÓDIGO DE LA TARJETA */
-          Flexible( // Tarjeta
+          for (var doc in snapshot.docs)
+           Flexible( // Tarjeta 999
               child: Container(
                 height: 160,
                 padding: EdgeInsets.all(4), //Hacia adentro
@@ -109,7 +116,6 @@ class _pPrincipalState extends State<pPrincipal> {
                     ),
                     borderRadius: BorderRadius.circular(8)
                 ),
-
                 //CONTENIDO DENTRO  DE LA TARJETA
                 child: Flexible(
                     child: Container(
@@ -125,37 +131,17 @@ class _pPrincipalState extends State<pPrincipal> {
 
                           //TEXTO DEL TITULO DE LA TARJETA
                           Flexible(
-                            child: FutureBuilder<QuerySnapshot>(
-                              future: FirebaseFirestore.instance.collection('coleccion-lugares').get(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const CircularProgressIndicator();
-                                } else if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}');
-                                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                                  return const Text('No hay lugares');
-                                }
-
-                                final lugares = snapshot.data!.docs;
-
-                                return ListView.builder(
-                                  shrinkWrap: true, // importante dentro de Flexible
-                                  itemCount: lugares.length,
-                                  itemBuilder: (context, index) {
-                                    final data = lugares[index].data() as Map<String, dynamic>;
-                                    final descripcion = data['nombre'] ?? 'Sin descripción';
-
-                                    return Text(
-                                      'Descripción: $descripcion',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  doc['nombre'],
+                                  style: TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black
+                                  ),
+                                ),
+                              )
                           ),
 
                           //CONTENEDOR DEL BOTÓN DE LA TARJETA
@@ -164,7 +150,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                 alignment: Alignment.bottomRight,
                                 child: ElevatedButton(
                                     onPressed: (){
-                                      mostrarTarjetaGrande(0);
+                                      mostrarTarjetaGrande(0, doc);
                                     },
                                     child: Text(
                                       "Más",
@@ -241,7 +227,8 @@ class _pPrincipalState extends State<pPrincipal> {
   }
 
   /* FUNCIÓN PARA MOSTRAR LA TARJETA GRANDE */
-  void mostrarTarjetaGrande(int idBD){
+  void mostrarTarjetaGrande(int idBD, doc){
+    print('Nombre del lugar: ${doc['nombre']}');
     showDialog(
       builder: (context){
         return Flexible(
@@ -250,7 +237,7 @@ class _pPrincipalState extends State<pPrincipal> {
               padding: EdgeInsets.all(4), // Hacia adentro
               margin: EdgeInsets.all(10), // Hacia afuera
               decoration: BoxDecoration(
-                  color: Colors.pinkAccent,
+                  color: Colors.white,
                   border: Border.all(
                       width: 4,
                       color: Colors.pink
@@ -277,7 +264,7 @@ class _pPrincipalState extends State<pPrincipal> {
                             child: Align(
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Título",
+                                  "${doc['nombre']}",
                                   style: TextStyle(
                                       fontSize: 26,
                                       color: Colors.black,
@@ -299,7 +286,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                       size: 19,
                                     ),
                                     Text(
-                                      "Descripción:",
+                                      "Descripción: ${doc['descripcion']}",
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.black,
@@ -324,7 +311,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                       size: 19,
                                     ),
                                     Text(
-                                      "Ubicación:",
+                                      "Ubicación: ${doc['ubicacion']}",
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.black,
@@ -349,7 +336,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                         size: 19,
                                       ),
                                       Text(
-                                        "Horario:",
+                                        "Horario: ${doc['horario']}",
                                         style: TextStyle(
                                             fontSize: 18,
                                             color: Colors.black,
@@ -374,7 +361,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                         size: 19,
                                       ),
                                       Text(
-                                        "Sitio Web:",
+                                        "Sitio Web: ${doc['enlaceWeb']}",
                                         style: TextStyle(
                                             fontSize: 18,
                                             color: Colors.black,
