@@ -114,7 +114,7 @@ packages:
     source: hosted
     version: "3.0.6"
   cupertino_calendar_picker:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: cupertino_calendar_picker
       sha256: "93aaa8cc51563099271af9662268cbec4e4bfa302dcedbc6038b90ef43534d3e"
@@ -170,7 +170,7 @@ packages:
     source: hosted
     version: "2.22.0"
   flex_color_picker:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flex_color_picker
       sha256: "8f753a1a026a13ea5cc5eddbae3ceb886f2537569ab2e5208efb1e3bb5af72ff"
@@ -387,7 +387,7 @@ packages:
     source: hosted
     version: "1.3.0"
   syncfusion_flutter_calendar:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: syncfusion_flutter_calendar
       sha256: "77704cf1a1ee21f17f0b6656c93009291416982550f9dc5b7b6d9336fe115223"

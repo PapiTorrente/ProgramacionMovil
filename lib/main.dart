@@ -690,10 +690,10 @@ class _pPrincipalState extends State<pPrincipal> {
       /* CÓDIGO DE LA VISTA DE LA PÁGINA SELECCIONADA */
       body: PageView(
         controller: _controladorPagina,
-        children: _paginas,
         onPageChanged: _paginaCambiada,
         //Physics evita el scroll horizontal para que sea solo por el menu
         physics: const NeverScrollableScrollPhysics(),
+        children: _paginas,
       ),
 
       /* FIN CÓDIGO DE LA VISTA DE LA PÁGINA SELECCIONADA */
