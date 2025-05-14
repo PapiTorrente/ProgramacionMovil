@@ -148,6 +148,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                 alignment: Alignment.topLeft,
                                 child: Text(
                                   doc['nombre'],
+                                  softWrap: true,
                                   style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -157,30 +158,47 @@ class _pPrincipalState extends State<pPrincipal> {
                               )
                           ),
 
-                          //CONTENEDOR DEL BOTÓN DE LA TARJETA
+                          //CONTENEDOR DEL TEXTO Y BOTÓN DE LA TARJETA
                           Flexible(
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Colors.pink.shade600,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                      child: Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Text(
+                                          doc['etiqueta'],
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            decoration: TextDecoration.underline,
+                                            color: Colors.black
+                                          ),
+                                        ),
+                                      )
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: ElevatedButton(
+                                        style: TextButton.styleFrom(
+                                            backgroundColor: Colors.pink.shade600,
+                                            foregroundColor: Colors.black,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4),
+                                            )
+                                        ),
+                                        onPressed: (){
+                                          _mostrarTarjetaGrande(0, doc);
+                                        },
+                                        child: Text(
+                                          "Más",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold
+                                          ),
                                         )
                                     ),
-                                    onPressed: (){
-                                      _mostrarTarjetaGrande(0, doc);
-                                    },
-                                    child: Text(
-                                      "Más",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold
-                                      ),
-                                    )
-                                ),
-                              )
+                                  )
+                                ],
+                              ),
                           )
                         ],
                       ),
@@ -256,7 +274,6 @@ class _pPrincipalState extends State<pPrincipal> {
       builder: (context){
         return Flexible(
             child: Container(
-              height: 450,
               padding: EdgeInsets.all(4), // Hacia adentro
               margin: EdgeInsets.all(10), // Hacia afuera
               decoration: BoxDecoration(
@@ -346,56 +363,61 @@ class _pPrincipalState extends State<pPrincipal> {
                         ),
 
                         //TEXTO DE LA UBICACIÓN
-                        Flexible(
-                            child: Column(
-                              children: [
+                        Container(
+                          margin: EdgeInsets.only(top:4, bottom: 4),
+                          child: Flexible(
+                              child: Column(
+                                children: [
 
-                                //CONTENEDOR DEL TEXTO UBICACIÓN
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on_outlined,
-                                        size: 24,
-                                      ),
-                                      Text(
-                                        "Ubicación:",
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            color: Colors.black,
-                                            decoration: TextDecoration.none
+                                  //CONTENEDOR DEL TEXTO UBICACIÓN
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.location_on_outlined,
+                                          size: 24,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                //CONTENEDOR DEL TEXTO "UBICACIÓN" QUE DEBE CAMBIARSE DINÁMICAMENTE
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "${doc['ubicacion']}",
-                                    softWrap: true,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                        decoration: TextDecoration.none
+                                        Text(
+                                          "Ubicación:",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              color: Colors.black,
+                                              decoration: TextDecoration.none
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              ],
-                            )
+
+                                  //CONTENEDOR DEL TEXTO "UBICACIÓN" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "${doc['ubicacion']}",
+                                      softWrap: true,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.black,
+                                          decoration: TextDecoration.none
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                          ),
                         ),
 
                         //TEXTO DEL HORARIO
-                        Flexible(
-                          child: Column(
-                            children: [
+                        Container(
+                          margin: EdgeInsets.only(top:4, bottom: 4),
+                          child: Flexible(
+                            child: Column(
+                              children: [
 
-                              //CONTENEDOR DEL TEXTO HORARIO
-                              Align(
-                                alignment: Alignment.topLeft,
+                                //CONTENEDOR DEL TEXTO HORARIO
+                                Align(
+                                  alignment: Alignment.topLeft,
                                   child: Row(
                                     children: [
                                       Icon(
@@ -412,24 +434,25 @@ class _pPrincipalState extends State<pPrincipal> {
                                       ),
                                     ],
                                   ),
-                              ),
-
-                              //CONTENEDOR DEL TEXTO "HORARIO" QUE DEBE CAMBIARSE DINÁMICAMENTE
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "${doc['horario']}",
-                                  softWrap: true,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                      decoration: TextDecoration.none
-                                  ),
                                 ),
-                              )
-                            ],
-                          ),
 
+                                //CONTENEDOR DEL TEXTO "HORARIO" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${doc['horario']}",
+                                    softWrap: true,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+
+                          ),
                         ),
 
                         //CONTENEDOR PARA EL ENLACE WEB
@@ -478,7 +501,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                     child: Text(
                                       eWeb,
                                       style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold
                                       ),
@@ -720,6 +743,13 @@ class _pPrincipalState extends State<pPrincipal> {
                               child: Align(
                                 alignment: Alignment.bottomLeft,
                                 child: ElevatedButton(
+                                    style: TextButton.styleFrom(
+                                        backgroundColor: Colors.pink.shade600,
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        )
+                                    ),
                                     onPressed: (){
                                       _agendarVisitaLugar();
 
@@ -746,6 +776,13 @@ class _pPrincipalState extends State<pPrincipal> {
                               child: Align(
                                 alignment: Alignment.bottomRight,
                                 child: ElevatedButton(
+                                    style: TextButton.styleFrom(
+                                        backgroundColor: Colors.pink.shade600,
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        )
+                                    ),
                                     onPressed: (){
                                       Navigator.of(context).pop();
                                     },
