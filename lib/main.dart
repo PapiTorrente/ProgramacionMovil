@@ -1,13 +1,17 @@
+//Imports para usar firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+
+import 'package:flutter/material.dart'; //Import para usar widgets y hacer interfaces
 import 'package:syncfusion_flutter_calendar/calendar.dart'; //Import del calendario
 import 'package:flex_color_picker/flex_color_picker.dart'; //Import del selector de color
 import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart'; //Import del selector de fechas
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:url_launcher/url_launcher.dart'; //Import para abrir enlaces.
+import 'package:cached_network_image/cached_network_image.dart';
 
 Future<void> main() async {
-  //WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -45,7 +49,7 @@ class _pPrincipalState extends State<pPrincipal> {
   var _indiceMenu = 0; //Variable del índice de la página
   final PageController _controladorPagina = PageController(initialPage: 0); //Controlador de la animación de la página
   List<Widget> _paginas=[]; //Lista de widgets para poner en la página
-
+  
   //VARIABLES PARA USAR EL CALENDARIO
   DateTime? _fechaInicio = DateTime.now();
   DateTime? _fechaFinalizacion = DateTime.now();
@@ -112,17 +116,30 @@ class _pPrincipalState extends State<pPrincipal> {
                     ),
                     borderRadius: BorderRadius.circular(8)
                 ),
+
                 //CONTENIDO DENTRO  DE LA TARJETA
                 child: Flexible(
                     child: Container(
                       child: Column(
                         children: [
-                          Container( // Contenedor para la imagen
+
+                          //CONTENEDOR DE LA IMAGEN
+                          Container(
                             decoration: BoxDecoration( //Decoración del borde
                                 border: Border.all(width: 4),
                                 borderRadius: BorderRadius.circular(8)
                             ),
                             height: 76,
+
+                            //DESCOMENTAR CUANDO ENCONTREMOS ALMACENAR IMAGENES
+                            /*
+                            child: CachedNetworkImage(
+                                //imageUrl: doc['imagen'],
+                                imageUrl: "",
+                                placeholder: (context, url) => CircularProgressIndicator(),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                            ),
+                             */
                           ),
 
                           //TEXTO DEL TITULO DE LA TARJETA
@@ -132,7 +149,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                 child: Text(
                                   doc['nombre'],
                                   style: TextStyle(
-                                      fontSize: 26,
+                                      fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black
                                   ),
@@ -145,13 +162,21 @@ class _pPrincipalState extends State<pPrincipal> {
                               child: Align(
                                 alignment: Alignment.bottomRight,
                                 child: ElevatedButton(
+                                    style: TextButton.styleFrom(
+                                        backgroundColor: Colors.pink.shade600,
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        )
+                                    ),
                                     onPressed: (){
-                                      mostrarTarjetaGrande(0, doc);
+                                      _mostrarTarjetaGrande(0, doc);
                                     },
                                     child: Text(
                                       "Más",
                                       style: TextStyle(
-                                          color: Colors.black
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold
                                       ),
                                     )
                                 ),
@@ -223,7 +248,9 @@ class _pPrincipalState extends State<pPrincipal> {
   }
 
   /* FUNCIÓN PARA MOSTRAR LA TARJETA GRANDE */
-  void mostrarTarjetaGrande(int idBD, doc){
+  void _mostrarTarjetaGrande(int idBD, doc){
+    String eWeb = '${doc['enlaceWeb']}';
+    final enlace = Uri.parse(eWeb);
     print('Nombre del lugar: ${doc['nombre']}');
     showDialog(
       builder: (context){
@@ -261,113 +288,205 @@ class _pPrincipalState extends State<pPrincipal> {
                                 alignment: Alignment.topLeft,
                                 child: Text(
                                   "${doc['nombre']}",
+                                  softWrap: true,
                                   style: TextStyle(
-                                      fontSize: 26,
+                                      fontSize: 32,
                                       color: Colors.black,
-                                      decoration: TextDecoration.none
+                                      decoration: TextDecoration.none,
+                                      fontWeight: FontWeight.bold
                                   ),
                                 )
                             )
                         ),
 
                         //TEXTO DE LA DESCRIPCIÓN
-                        Flexible(
-                            child: Align(
-                              alignment: Alignment.topLeft,
-                              child: Container(
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.text_snippet_outlined,
-                                      size: 19,
+                        Container(
+                          margin: EdgeInsets.only(top:4, bottom: 4),
+                          child: Flexible(
+                              child: Column(
+                                children: [
+
+                                  //CONTENEDOR DEL TEXTO DESCRIPCIÓN
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.text_snippet_outlined,
+                                          size: 24,
+                                        ),
+                                        Text(
+                                          "Descripción:",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              color: Colors.black,
+                                              decoration: TextDecoration.none
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      "Descripción: ${doc['descripcion']}",
+                                  ),
+
+                                  //CONTENEDOR DEL TEXTO "DESCRIPCIÓN QUE DEBE CAMBIARSE DINÁMICAMENTE
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "${doc['descripcion']}",
+                                      softWrap: true,
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.black,
                                           decoration: TextDecoration.none
                                       ),
                                     ),
-                                  ],
+                                  )
+                                ],
+                              )
+                          ),
+                        ),
+
+                        //TEXTO DE LA UBICACIÓN
+                        Flexible(
+                            child: Column(
+                              children: [
+
+                                //CONTENEDOR DEL TEXTO UBICACIÓN
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on_outlined,
+                                        size: 24,
+                                      ),
+                                      Text(
+                                        "Ubicación:",
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            color: Colors.black,
+                                            decoration: TextDecoration.none
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
+
+                                //CONTENEDOR DEL TEXTO "UBICACIÓN" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "${doc['ubicacion']}",
+                                    softWrap: true,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                )
+                              ],
                             )
                         ),
 
                         //TEXTO DEL HORARIO
                         Flexible(
-                            child: Align(
-                              alignment: Alignment.topLeft,
-                              child: Container(
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on_outlined,
-                                      size: 19,
-                                    ),
-                                    Text(
-                                      "Ubicación: ${doc['ubicacion']}",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                        ),
+                          child: Column(
+                            children: [
 
-                        //TEXTO DE LA UBICACIÓN
-                        Flexible(
-                            child: Align(
+                              //CONTENEDOR DEL TEXTO HORARIO
+                              Align(
                                 alignment: Alignment.topLeft,
-                                child: Container(
                                   child: Row(
                                     children: [
                                       Icon(
                                         Icons.access_time_outlined,
-                                        size: 19,
+                                        size: 24,
                                       ),
                                       Text(
-                                        "Horario: ${doc['horario']}",
+                                        "Horario:",
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 24,
                                             color: Colors.black,
                                             decoration: TextDecoration.none
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-                            )
+                              ),
+
+                              //CONTENEDOR DEL TEXTO "HORARIO" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "${doc['horario']}",
+                                  softWrap: true,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+
                         ),
 
-                        //TEXTO DEL ENLACE WEB
+                        //CONTENEDOR PARA EL ENLACE WEB
                         Flexible(
-                            child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Container(
+                            child: Column(
+                              children: [
+
+                                //ESPACIO PARA EL TEXTO DEL ENLACE WEB
+                                Align(
+                                  alignment: Alignment.centerLeft,
                                   child: Row(
                                     children: [
                                       Icon(
                                         Icons.link,
-                                        size: 19,
+                                        size: 24,
                                       ),
                                       Text(
-                                        "Sitio Web: ${doc['enlaceWeb']}",
+                                        "Sitio Web:",
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 24,
                                             color: Colors.black,
                                             decoration: TextDecoration.none
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-                            )
+                                ),
+
+                                //ESPACIO PARA EL BOTÓN DEL ENLACE WEB DÓNDE DEBE COLOCARSE EL ENLACE DINÁMICAMENTE
+                                ElevatedButton(
+                                  style: TextButton.styleFrom(
+                                      backgroundColor: Colors.pink.shade600,
+                                      foregroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      )
+                                  ),
+                                  onPressed: () =>setState(() {
+                                    launchUrl(
+                                        enlace,
+                                        mode: LaunchMode.externalApplication
+                                    );
+                                  }),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      eWeb,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  )
+                                ),
+                              ],
+                            ),
                         ),
 
                         //ESPACIO PARA LOS BOTONES DE LA TARJETA GRANDE
@@ -378,14 +497,22 @@ class _pPrincipalState extends State<pPrincipal> {
                                 child: Align(
                                   alignment: Alignment.bottomLeft,
                                   child: ElevatedButton(
+                                      style: TextButton.styleFrom(
+                                          backgroundColor: Colors.pink.shade600,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(4),
+                                          )
+                                      ),
                                       onPressed: (){
                                         Navigator.of(context).pop();
-                                        agregarAlCalendario(0);
+                                        _agregarAlCalendario(0);
                                       },
                                       child: Text(
                                         "Agendar",
                                         style: TextStyle(
-                                            color: Colors.black
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold
                                         ),
                                       )
                                   ),
@@ -397,13 +524,21 @@ class _pPrincipalState extends State<pPrincipal> {
                                 child: Align(
                                   alignment: Alignment.bottomRight,
                                   child: ElevatedButton(
+                                      style: TextButton.styleFrom(
+                                          backgroundColor: Colors.pink.shade600,
+                                          foregroundColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(4),
+                                          )
+                                      ),
                                       onPressed: (){
                                         Navigator.of(context).pop();
                                       },
                                       child: Text(
                                         "Cerrar",
                                         style: TextStyle(
-                                            color: Colors.black
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold
                                         ),
                                       )
                                   ),
@@ -421,8 +556,10 @@ class _pPrincipalState extends State<pPrincipal> {
       context: context,
     );
   }
+  /* FIN FUNCIÓN PARA MOSTRAR TARJETA GRANDE */
 
-  void agregarAlCalendario(int idBD){
+  /* FUNCIÓN PARA AGREGAR EL LUGAR AL CALENDARIO */
+  void _agregarAlCalendario(int idBD){
     showDialog(
       builder: (context){
         return Flexible(
@@ -632,6 +769,7 @@ class _pPrincipalState extends State<pPrincipal> {
       context: context,
     );
   }
+  /* FIN FUNCIÓN PARA AGREGAR EL LUGAR AL CALENDARIO */
 
   /* FUNCIONES PARA CAMBIAR DE PANTALLA EN EL MENÚ BAJO */
   void _itemPresionado(int indice){
