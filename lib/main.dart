@@ -53,8 +53,11 @@ class _pPrincipalState extends State<pPrincipal> {
   //VARIABLES PARA USAR EL CALENDARIO
   DateTime? _fechaInicio = DateTime.now();
   DateTime? _fechaFinalizacion = DateTime.now();
-  int ? _colorElegido; //Almacena el color del evento
+  Color? _colorElegido = Colors.blue; //Almacena el color del evento
   final List<Map<String,dynamic>> _visitas=[]; //Lista para almacenar los datos de los eventos
+  List<Appointment> _reuniones = [];
+  MeetingDataSource? _dataSource;
+
 
   //VARIABLES PARA LA BASE DE DATOS
   /*
@@ -67,6 +70,7 @@ class _pPrincipalState extends State<pPrincipal> {
   void initState() {
     super.initState();
     _entrada(); // Llamada al método asíncrono
+    _dataSource = MeetingDataSource(_reuniones);
   }
   
   /* PÁGINAS */
@@ -237,7 +241,7 @@ class _pPrincipalState extends State<pPrincipal> {
                   monthViewSettings: MonthViewSettings(
                     showAgenda: true,
                   ),
-                  //dataSource: MeetingDataSource(_getDataSource(_nombresEventos,_eventos)),
+                  dataSource: _dataSource,
                 ),
               )
           )
@@ -506,7 +510,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                       ),
                                       onPressed: (){
                                         Navigator.of(context).pop();
-                                        _agregarAlCalendario(0);
+                                        _agregarAlCalendario(doc['nombre']);
                                       },
                                       child: Text(
                                         "Agendar",
@@ -559,7 +563,7 @@ class _pPrincipalState extends State<pPrincipal> {
   /* FIN FUNCIÓN PARA MOSTRAR TARJETA GRANDE */
 
   /* FUNCIÓN PARA AGREGAR EL LUGAR AL CALENDARIO */
-  void _agregarAlCalendario(int idBD){
+  void _agregarAlCalendario(String titulo){
     showDialog(
       builder: (context){
         return Flexible(
@@ -704,8 +708,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                       decoration: TextDecoration.none
                                   ),
                                 ),
-                                onColorChanged: (value){
-                                  _colorElegido = value.value32bit;
+                                onColorChanged: (Color value){
+                                  _colorElegido = value;
                                 },
                               ),
                             )
@@ -721,12 +725,12 @@ class _pPrincipalState extends State<pPrincipal> {
                                 alignment: Alignment.bottomLeft,
                                 child: ElevatedButton(
                                     onPressed: (){
-                                      _agendarVisitaLugar();
+                                      _agendarVisitaLugar(titulo);
 
                                       //Reestablece los valores
                                       _fechaInicio = DateTime.now();
                                       _fechaFinalizacion = DateTime.now();
-                                      _colorElegido = 0;
+                                      _colorElegido = Colors.white!;
 
                                       //Cierra la tarjeta de agregar
                                       Navigator.of(context).pop();
@@ -799,7 +803,39 @@ class _pPrincipalState extends State<pPrincipal> {
     setState(() { _fechaFinalizacion = fechaNueva; });
   }
 
-  void _agendarVisitaLugar() async{
+  /*List<Appointment> obtenerReuniones(){
+    List<Appointment> reuniones = <Appointment>[];
+    final DateTime hoy = _fechaInicio!;
+    final DateTime fechaFinal = _fechaFinalizacion!;
+    final DateTime inicio = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
+    final DateTime end = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
+    reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
+    return reuniones;
+  }*/
+  void _agendarVisitaLugar(String titulo) async {
+    List<Appointment> reuniones = obtenerReuniones();
+    final DateTime hoy = _fechaInicio!;
+    final DateTime fechaFinal = _fechaFinalizacion!;
+    final DateTime inicio = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
+    final DateTime end = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
+    //reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
+    setState(() {
+      _reuniones.add(Appointment(
+        startTime: inicio,
+        endTime: end,
+        subject: titulo,
+        color: _colorElegido!,
+      ));
+      _dataSource!.notifyListeners(CalendarDataSourceAction.add, _reuniones);
+    });
+  }
+
+List<Appointment> obtenerReuniones(){
+  List<Appointment> reuniones = <Appointment>[];
+  return reuniones;
+}
+
+  /*void _agendarVisitaLugar() async{
     Map<String, dynamic> datos = {
       "fechaInicio":_fechaInicio,
       "fechaFinalizacion":_fechaFinalizacion,
@@ -817,7 +853,7 @@ class _pPrincipalState extends State<pPrincipal> {
     }
      */
     setState(() {  });
-  }
+  }*/
   /* FIN FUNCIONES PARA AGENDAR EVENTOS EN EL CALENDARIO */
 
   /* ASPECTO VISUAL DE LA APLICACIÓN*/
@@ -892,7 +928,7 @@ class _pPrincipalState extends State<pPrincipal> {
 
 /* CÓDIGO CREADO EN LA CLASE DE PROGRAMACIÓN MÓVIL */
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Meeting> source) {
+  MeetingDataSource(List<Appointment> source) {
     appointments = source;
   }
 
