@@ -58,14 +58,6 @@ class _pPrincipalState extends State<pPrincipal> {
   List<Appointment> _reuniones = [];
   MeetingDataSource? _dataSource;
 
-
-  //VARIABLES PARA LA BASE DE DATOS
-  /*
-  FirebaseFirestore db = FirebaseFirestore.instance; //Instancia de base de datos para interactuar con ella.
-  final List<Meeting> meetings = <Meeting>[]; //Lista de objetos "Meeting" para mostrar en el widget del calendario
-  final List<String> _nombresEventos=[]; //Lista para almacenar IDs de los eventos
-   */
-
   @override
   void initState() {
     super.initState();
@@ -76,7 +68,6 @@ class _pPrincipalState extends State<pPrincipal> {
   }
   
   /* PÁGINAS */
-  @override
   Future<void> _entrada() async {
     final snapshot = await FirebaseFirestore.instance.collection('coleccion-lugares').get();
     _paginas = [
@@ -109,109 +100,103 @@ class _pPrincipalState extends State<pPrincipal> {
 
           /* CÓDIGO DE LA TARJETA */
           for (var doc in snapshot.docs)
-           Flexible( // Tarjeta 999
-              child: Container(
-                height: 160,
-                padding: EdgeInsets.all(4), //Hacia adentro
-                margin: EdgeInsets.all(10), //Hacia afuera
-                decoration: BoxDecoration(
-                    color: Colors.pinkAccent,
-                    border: Border.all(
-                        width: 4,
-                        color: Colors.pink
+            Container( //Tarjeta 999
+              height: 160,
+              padding: EdgeInsets.all(4), //Hacia adentro
+              margin: EdgeInsets.all(10), //Hacia afuera
+              decoration: BoxDecoration(
+                  color: Colors.pinkAccent,
+                  border: Border.all(
+                      width: 4,
+                      color: Colors.pink
+                  ),
+                  borderRadius: BorderRadius.circular(8)
+              ),
+
+              //CONTENIDO DENTRO  DE LA TARJETA
+              child: Column(
+                children: [
+
+                  //CONTENEDOR DE LA IMAGEN
+                  Container(
+                    height: 80,
+                    decoration: BoxDecoration( //Decoración del borde
+                        border: Border.all(width: 4),
+                        borderRadius: BorderRadius.circular(8)
                     ),
-                    borderRadius: BorderRadius.circular(8)
-                ),
 
-                //CONTENIDO DENTRO  DE LA TARJETA
-                child: Flexible(
-                    child: Container(
-                      child: Column(
-                        children: [
+                    //IMAGEN
+                    child: SizedBox( //Forza a que la imagen ocupe el tamaño que queremos
+                      width: double.infinity,
+                      height: 80,
+                      child: Image.network(
+                        doc['imagen'],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
 
-                          //CONTENEDOR DE LA IMAGEN
-                          Container(
-                            decoration: BoxDecoration( //Decoración del borde
-                                border: Border.all(width: 4),
-                                borderRadius: BorderRadius.circular(8)
-                            ),
-                            height: 76,
-
-                            //DESCOMENTAR CUANDO ENCONTREMOS ALMACENAR IMAGENES
-                            /*
-                            child: CachedNetworkImage(
-                                //imageUrl: doc['imagen'],
-                                imageUrl: "",
-                                placeholder: (context, url) => CircularProgressIndicator(),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
-                            ),
-                             */
+                  //TEXTO DEL TITULO DE LA TARJETA
+                  Flexible(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          doc['nombre'],
+                          softWrap: true,
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black
                           ),
+                        ),
+                      )
+                  ),
 
-                          //TEXTO DEL TITULO DE LA TARJETA
-                          Flexible(
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  doc['nombre'],
-                                  softWrap: true,
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black
-                                  ),
+                  //CONTENEDOR DEL TEXTO Y BOTÓN DE LA TARJETA
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Text(
+                                doc['etiqueta'],
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.black
+                                ),
+                              ),
+                            )
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: ElevatedButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.pink.shade600,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  )
+                              ),
+                              onPressed: (){
+                                _mostrarTarjetaGrande(0, doc);
+                              },
+                              child: Text(
+                                "Más",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
                                 ),
                               )
                           ),
-
-                          //CONTENEDOR DEL TEXTO Y BOTÓN DE LA TARJETA
-                          Flexible(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                      child: Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: Text(
-                                          doc['etiqueta'],
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            decoration: TextDecoration.underline,
-                                            color: Colors.black
-                                          ),
-                                        ),
-                                      )
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: ElevatedButton(
-                                        style: TextButton.styleFrom(
-                                            backgroundColor: Colors.pink.shade600,
-                                            foregroundColor: Colors.black,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(4),
-                                            )
-                                        ),
-                                        onPressed: (){
-                                          _mostrarTarjetaGrande(0, doc);
-                                        },
-                                        child: Text(
-                                          "Más",
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold
-                                          ),
-                                        )
-                                    ),
-                                  )
-                                ],
-                              ),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-              )
-          )
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
           /* FIN DEL CÓDIGO DE LA TARJETA */
         ],
       ),
@@ -296,12 +281,24 @@ class _pPrincipalState extends State<pPrincipal> {
                   child: Container(
                     child: Column(
                       children: [
-                        Container( //CONTENEDOR PARA LA IMAGEN EN LA TARJETA GRANDE
+
+                        //CONTENEDOR PARA LA IMAGEN EN LA TARJETA GRANDE
+                        Container(
                             height: 170,
                             decoration: BoxDecoration( //DECORACIÓN DEL BORDE
                                 border: Border.all(width: 4),
                                 borderRadius: BorderRadius.circular(8)
-                            )
+                            ),
+
+                            //IMAGEN DE LA TARJETA GRANDE
+                            child: SizedBox( //Forza a que la imagen ocupe el tamaño que queremos
+                              width: double.infinity,
+                              height: 170,
+                              child: Image.network(
+                                "${doc['imagen']}",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                         ),
 
                         //TEXTO DEL TITULO DE LA TARJETA GRANDE
@@ -944,27 +941,6 @@ List<Appointment> obtenerReuniones(){
   return reuniones;
 }
 
-  /*void _agendarVisitaLugar() async{
-    Map<String, dynamic> datos = {
-      "fechaInicio":_fechaInicio,
-      "fechaFinalizacion":_fechaFinalizacion,
-      "color":_colorElegido
-    };
-    //await db.collection("visita").doc(_nombreEvento.text).set(datos);
-  }
-
-  //ARREGLAR ESTA PARTE
-  void _obtenerVisitaLugar() async{
-    //QuerySnapshot visitas = await db.collection("visita").get();
-    /*
-    for(DocumentSnapshot visita in visitas.docs){
-      _visitas.add(visita.data() as Map<String, dynamic>);
-    }
-     */
-    setState(() {  });
-  }*/
-  /* FIN FUNCIONES PARA AGENDAR EVENTOS EN EL CALENDARIO */
-
   /* ASPECTO VISUAL DE LA APLICACIÓN*/
   @override
   Widget build(BuildContext context) { //Aqui va el aspecto visual.
@@ -982,8 +958,6 @@ List<Appointment> obtenerReuniones(){
       /* FIN CÓDIGO DE LA VISTA DE LA PÁGINA SELECCIONADA */
 
       /* CÓDIGO DE LA BARRA DE NAVEGACIÓN */
-
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceMenu,
         backgroundColor: Colors.pinkAccent,
@@ -1012,27 +986,6 @@ List<Appointment> obtenerReuniones(){
     );
   }
   /* FIN ASPECTO VISUAL DE LA APLICACIÓN */
-
-
-  //ESTO NO SÉ PARA QUÉ ES
-  /*
-  List<Meeting> _getDataSource(List<String> nombresEventos, List<Map<String,dynamic>> eventos) {
-    for(int i=0;i<nombresEventos.length;i++){
-      DateTime fechaInicio=(eventos[i]["fechaInicio"] as Timestamp).toDate();
-      DateTime fechaFinal=(eventos[i]["fechaFinal"] as Timestamp).toDate();
-
-      meetings.add(
-          Meeting(
-              nombresEventos[i],
-              fechaInicio,
-              fechaFinal,
-              Color(eventos[i]["color"])
-          )
-      );
-    }
-    return meetings;
-  }
-  */
 }
 
 /* CÓDIGO CREADO EN LA CLASE DE PROGRAMACIÓN MÓVIL */
