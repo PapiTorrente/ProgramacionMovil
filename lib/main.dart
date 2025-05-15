@@ -8,6 +8,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart'; //Import del calenda
 import 'package:flex_color_picker/flex_color_picker.dart'; //Import del selector de color
 import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart'; //Import del selector de fechas
 import 'package:url_launcher/url_launcher.dart'; //Import para abrir enlaces.
+import 'package:cached_network_image/cached_network_image.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +54,7 @@ class _pPrincipalState extends State<pPrincipal> {
   DateTime? _fechaInicio = DateTime.now();
   DateTime? _fechaFinalizacion = DateTime.now();
   Color? _colorElegido = Colors.blue; //Almacena el color del evento
-  List<Appointment> _reuniones = []; //VARIABLE QUE ALMACENA LOS EVENTOS DEL CALENDARIO
+  final List<Appointment> _reuniones = []; //VARIABLE QUE ALMACENA LOS EVENTOS DEL CALENDARIO
   MeetingDataSource? _dataSource;//VARAIBLE DE FUENTE DE DATOS PARA EL CALENDARIO
 
   @override
@@ -131,9 +132,11 @@ class _pPrincipalState extends State<pPrincipal> {
                     child: SizedBox( //Forza a que la imagen ocupe el tamaño que queremos
                       width: double.infinity,
                       height: 80,
-                      child: Image.network(
-                        doc['imagen'],
-                        fit: BoxFit.cover,
+                      child: CachedNetworkImage(
+                          imageUrl: doc['imagen'],
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -267,322 +270,299 @@ class _pPrincipalState extends State<pPrincipal> {
     print('Nombre del lugar: ${doc['nombre']}');
     showDialog(
       builder: (context){
-        return Flexible(
-            child: Container(
-              padding: EdgeInsets.all(4), // Hacia adentro
-              margin: EdgeInsets.all(10), // Hacia afuera
-              decoration: BoxDecoration(
-                  color: Colors.pinkAccent,
-                  border: Border.all(
-                      width: 4,
-                      color: Colors.pink
+        return Flex(
+            direction: Axis.horizontal,
+          children: [
+            Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(4), // Hacia adentro
+                  margin: EdgeInsets.all(10), // Hacia afuera
+                  decoration: BoxDecoration(
+                      color: Colors.pinkAccent,
+                      border: Border.all(
+                          width: 4,
+                          color: Colors.pink
+                      ),
+                      borderRadius: BorderRadius.circular(8)
                   ),
-                  borderRadius: BorderRadius.circular(8)
-              ),
 
-              //CONTENIDO DENTRO DE LA TARJETA GRANDE
-              child: Flexible(
-                  child: Container(
-                    child: Column(
-                      children: [
+                  //CONTENIDO DENTRO DE LA TARJETA GRANDE
+                  child: Column(
+                    children: [
 
-                        //CONTENEDOR PARA LA IMAGEN EN LA TARJETA GRANDE
-                        Container(
-                            height: 170,
-                            decoration: BoxDecoration( //DECORACIÓN DEL BORDE
-                                border: Border.all(width: 4),
-                                borderRadius: BorderRadius.circular(8)
-                            ),
-
-                            //IMAGEN DE LA TARJETA GRANDE
-                            child: SizedBox( //Forza a que la imagen ocupe el tamaño que queremos
-                              width: double.infinity,
-                              height: 170,
-                              child: Image.network(
-                                "${doc['imagen']}",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                      //CONTENEDOR PARA LA IMAGEN EN LA TARJETA GRANDE
+                      Container(
+                        height: 170,
+                        decoration: BoxDecoration( //DECORACIÓN DEL BORDE
+                            border: Border.all(width: 4),
+                            borderRadius: BorderRadius.circular(8)
                         ),
 
-                        //TEXTO DEL TITULO DE LA TARJETA GRANDE
-                        Flexible(
-                            flex: 0,
-                            child: Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  "${doc['nombre']}",
-                                  softWrap: true,
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      color: Colors.black,
-                                      decoration: TextDecoration.none,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                )
-                            )
-                        ),
-
-                        //TEXTO DE LA DESCRIPCIÓN
-                        Container(
-                          margin: EdgeInsets.only(top:4, bottom: 4),
-                          child: Flexible(
-                              child: Column(
-                                children: [
-
-                                  //CONTENEDOR DEL TEXTO DESCRIPCIÓN
-                                  Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.text_snippet_outlined,
-                                          size: 24,
-                                        ),
-                                        Text(
-                                          "Descripción:",
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              color: Colors.black,
-                                              decoration: TextDecoration.none
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  //CONTENEDOR DEL TEXTO "DESCRIPCIÓN QUE DEBE CAMBIARSE DINÁMICAMENTE
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "${doc['descripcion']}",
-                                      softWrap: true,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
+                        //IMAGEN DE LA TARJETA GRANDE
+                        child: SizedBox( //Forza a que la imagen ocupe el tamaño que queremos
+                          width: double.infinity,
+                          height: 170,
+                          child: CachedNetworkImage(
+                            imageUrl: doc['imagen'],
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Icon(Icons.error),
                           ),
                         ),
+                      ),
 
-                        //TEXTO DE LA UBICACIÓN
-                        Container(
-                          margin: EdgeInsets.only(top:4, bottom: 4),
-                          child: Flexible(
-                              child: Column(
-                                children: [
+                      //TEXTO DEL TITULO DE LA TARJETA GRANDE
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "${doc['nombre']}",
+                            softWrap: true,
+                            style: TextStyle(
+                                fontSize: 32,
+                                color: Colors.black,
+                                decoration: TextDecoration.none,
+                                fontWeight: FontWeight.bold
+                            ),
+                          )
+                      ),
 
-                                  //CONTENEDOR DEL TEXTO UBICACIÓN
-                                  Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.location_on_outlined,
-                                          size: 24,
-                                        ),
-                                        Text(
-                                          "Ubicación:",
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              color: Colors.black,
-                                              decoration: TextDecoration.none
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                      //TEXTO DE LA DESCRIPCIÓN
+                      Container(
+                        margin: EdgeInsets.only(top:4, bottom: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
-                                  //CONTENEDOR DEL TEXTO "UBICACIÓN" QUE DEBE CAMBIARSE DINÁMICAMENTE
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "${doc['ubicacion']}",
-                                      softWrap: true,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )
-                          ),
-                        ),
-
-                        //TEXTO DEL HORARIO
-                        Container(
-                          margin: EdgeInsets.only(top:4, bottom: 4),
-                          child: Flexible(
-                            child: Column(
+                            //CONTENEDOR DEL TEXTO DESCRIPCIÓN
+                            Row(
                               children: [
-
-                                //CONTENEDOR DEL TEXTO HORARIO
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.access_time_outlined,
-                                        size: 24,
-                                      ),
-                                      Text(
-                                        "Horario:",
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            color: Colors.black,
-                                            decoration: TextDecoration.none
-                                        ),
-                                      ),
-                                    ],
+                                Icon(
+                                  Icons.text_snippet_outlined,
+                                  size: 24,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Descripción:",
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
                                   ),
                                 ),
+                              ],
+                            ),
 
-                                //CONTENEDOR DEL TEXTO "HORARIO" QUE DEBE CAMBIARSE DINÁMICAMENTE
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "${doc['horario']}",
-                                    softWrap: true,
+                            //CONTENEDOR DEL TEXTO "DESCRIPCIÓN QUE DEBE CAMBIARSE DINÁMICAMENTE
+                            Text(
+                              "${doc['descripcion']}",
+                              softWrap: true,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  decoration: TextDecoration.none
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+
+                      //TEXTO DE LA UBICACIÓN
+                      Container(
+                        margin: EdgeInsets.only(top:4, bottom: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            //CONTENEDOR DEL TEXTO UBICACIÓN
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 24,
+                                ),
+                                SizedBox(width:8),
+                                Text(
+                                  "Ubicación:",
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            //CONTENEDOR DEL TEXTO "UBICACIÓN" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                            Text(
+                              "${doc['ubicacion']}",
+                              softWrap: true,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  decoration: TextDecoration.none
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+
+                      //TEXTO DEL HORARIO
+                      Container(
+                        margin: EdgeInsets.only(top:4, bottom: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            //CONTENEDOR DEL TEXTO HORARIO
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time_outlined,
+                                    size: 24,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Horario:",
                                     style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 24,
                                         color: Colors.black,
                                         decoration: TextDecoration.none
                                     ),
                                   ),
-                                )
-                              ],
+                                ],
+                              ),
                             ),
 
-                          ),
-                        ),
-
-                        //CONTENEDOR PARA EL ENLACE WEB
-                        Flexible(
-                            child: Column(
-                              children: [
-
-                                //ESPACIO PARA EL TEXTO DEL ENLACE WEB
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.link,
-                                        size: 24,
-                                      ),
-                                      Text(
-                                        "Sitio Web:",
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            color: Colors.black,
-                                            decoration: TextDecoration.none
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                //ESPACIO PARA EL BOTÓN DEL ENLACE WEB DÓNDE DEBE COLOCARSE EL ENLACE DINÁMICAMENTE
-                                ElevatedButton(
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: Colors.pink.shade600,
-                                      foregroundColor: Colors.black,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                      )
-                                  ),
-                                  onPressed: () =>setState(() {
-                                    launchUrl(
-                                        enlace,
-                                        mode: LaunchMode.externalApplication
-                                    );
-                                  }),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      eWeb,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold
-                                      ),
-                                    ),
-                                  )
-                                ),
-                              ],
-                            ),
-                        ),
-
-                        //ESPACIO PARA LOS BOTONES DE LA TARJETA GRANDE
-                        Row(
-                          children: [
-                            //CONTENEDOR DEL BOTÓN PARA AGREGAR EVENTO
-                            Flexible(
-                                child: Align(
-                                  alignment: Alignment.bottomLeft,
-                                  child: ElevatedButton(
-                                      style: TextButton.styleFrom(
-                                          backgroundColor: Colors.pink.shade600,
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(4),
-                                          )
-                                      ),
-                                      onPressed: (){
-                                        Navigator.of(context).pop();
-                                        //FUNCION PARA MOSTRAR LA TARJETA PARA AGENDAR
-                                        //UN EVENTO, DADO UN EVENTO SELECCIONADO
-                                        _agregarAlCalendario(doc['nombre']);
-                                      },
-                                      child: Text(
-                                        "Agendar",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold
-                                        ),
-                                      )
-                                  ),
-                                )
-                            ),
-
-                            //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA GRANDE
-                            Flexible(
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: ElevatedButton(
-                                      style: TextButton.styleFrom(
-                                          backgroundColor: Colors.pink.shade600,
-                                          foregroundColor: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(4),
-                                          )
-                                      ),
-                                      onPressed: (){
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text(
-                                        "Cerrar",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold
-                                        ),
-                                      )
-                                  ),
-                                )
+                            //CONTENEDOR DEL TEXTO "HORARIO" QUE DEBE CAMBIARSE DINÁMICAMENTE
+                            Text(
+                              "${doc['horario']}",
+                              softWrap: true,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  decoration: TextDecoration.none
+                              ),
                             )
                           ],
-                        )
-                      ],
-                    ),
+                        ),
+                      ),
+
+                      //CONTENEDOR PARA EL ENLACE WEB
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          //ESPACIO PARA EL TEXTO DEL ENLACE WEB
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.link,
+                                size: 24,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Sitio Web:",
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    color: Colors.black,
+                                    decoration: TextDecoration.none
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          //ESPACIO PARA EL BOTÓN DEL ENLACE WEB DÓNDE DEBE COLOCARSE EL ENLACE DINÁMICAMENTE
+                          ElevatedButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.pink.shade600,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  )
+                              ),
+                              onPressed: () =>setState(() {
+                                launchUrl(
+                                    enlace,
+                                    mode: LaunchMode.externalApplication
+                                );
+                              }),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  eWeb,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                              )
+                          ),
+                        ],
+                      ),
+
+                      //Empuja el espacio disponible para que los
+                      //botones siempre estén abajo.
+                      Expanded(child: SizedBox()),
+
+                      //ESPACIO PARA LOS BOTONES DE LA TARJETA GRANDE
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //CONTENEDOR DEL BOTÓN PARA AGREGAR EVENTO
+                          ElevatedButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.pink.shade600,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  )
+                              ),
+                              onPressed: (){
+                                Navigator.of(context).pop();
+                                //FUNCION PARA MOSTRAR LA TARJETA PARA AGENDAR
+                                //UN EVENTO, DADO UN EVENTO SELECCIONADO
+                                _agregarAlCalendario(doc['nombre']);
+                              },
+                              child: Text(
+                                "Agendar",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              )
+                          ),
+                          SizedBox(width: 8),
+
+                          //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA GRANDE
+                          ElevatedButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.pink.shade600,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  )
+                              ),
+                              onPressed: (){
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                "Cerrar",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              )
+                          )
+                        ],
+                      )
+                    ],
                   )
-              ),
+                )
             )
+          ],
         );
       },
       context: context,
@@ -595,29 +575,28 @@ class _pPrincipalState extends State<pPrincipal> {
   void _agregarAlCalendario(String titulo){
     showDialog(
       builder: (context){
-        return Flexible(
-            child: Container(
-              height: 200,
-              padding: EdgeInsets.all(4), // Hacia adentro
-              margin: EdgeInsets.all(10), // Hacia afuera
-              decoration: BoxDecoration(
-                  color: Colors.pinkAccent,
-                  border: Border.all(
-                      width: 4,
-                      color: Colors.pink
-                  ),
-                  borderRadius: BorderRadius.circular(8)
-              ),
+        return Flex(
+            direction: Axis.horizontal,
+            children: [
+              Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(4), // Hacia adentro
+                    margin: EdgeInsets.all(10), // Hacia afuera
+                    decoration: BoxDecoration(
+                        color: Colors.pinkAccent,
+                        border: Border.all(
+                            width: 4,
+                            color: Colors.pink
+                        ),
+                        borderRadius: BorderRadius.circular(8)
+                    ),
 
-              //CONTENIDO DENTRO DE LA TARJETA DE AGREGAR AL CALENDARIO
-              child: Flexible(
-                  child: Column(
-                    children: [
+                    //CONTENIDO DENTRO DE LA TARJETA DE AGREGAR AL CALENDARIO
+                    child: Column(
+                      children: [
 
-                      //CONTENEDOR PARA EL TEXTO DE LA FECHA DE INICIO
-                      Flexible(
-                        flex: 0,
-                          child: Align(
+                        //CONTENEDOR PARA EL TEXTO DE LA FECHA DE INICIO
+                        Align(
                             alignment: Alignment.center,
                             child: Container(
                               margin: EdgeInsets.only(bottom: 10),
@@ -631,39 +610,36 @@ class _pPrincipalState extends State<pPrincipal> {
                               ),
                               child: Column(
                                 children: [
-                                    Text(
-                                      "Día y hora de Inicio:",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
+                                  Text(
+                                    "Día y hora de Inicio:",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    child: CupertinoCalendarPickerButton(
+                                      buttonDecoration: PickerButtonDecoration(
+                                          backgroundColor: Colors.pink.shade700
                                       ),
-                                    ),
-                                    SizedBox(
-                                      child: CupertinoCalendarPickerButton(
-                                        buttonDecoration: PickerButtonDecoration(
-                                            backgroundColor: Colors.pink.shade700
-                                        ),
-                                        minimumDateTime: DateTime(2024, 7, 10),
-                                        maximumDateTime: DateTime(2025, 7, 10),
-                                        initialDateTime: DateTime.now(),
-                                        currentDateTime: DateTime.now(),
-                                        mode: CupertinoCalendarMode.dateTime,
-                                        timeLabel: 'Inicio',
-                                        onDateTimeChanged: (date) {
-                                          _fijarFechaInicial(date);
-                                        },),
-                                    ),
+                                      minimumDateTime: DateTime(2024, 7, 10),
+                                      maximumDateTime: DateTime(2025, 7, 10),
+                                      initialDateTime: DateTime.now(),
+                                      currentDateTime: DateTime.now(),
+                                      mode: CupertinoCalendarMode.dateTime,
+                                      timeLabel: 'Inicio',
+                                      onDateTimeChanged: (date) {
+                                        _fijarFechaInicial(date);
+                                      },),
+                                  ),
                                 ],
                               ),
                             )
-                          )
-                      ),
+                        ),
 
-                      //CONTENEDOR PARA EL TEXTO DE LA FECHA DE FINALIZACIÓN
-                      Flexible(
-                        flex: 0,
-                          child: Align(
+                        //CONTENEDOR PARA EL TEXTO DE LA FECHA DE FINALIZACIÓN
+                        Align(
                             alignment: Alignment.center,
                             child: Container(
                               margin: EdgeInsets.only(bottom: 10),
@@ -703,22 +679,20 @@ class _pPrincipalState extends State<pPrincipal> {
                                 ],
                               ),
                             )
-                          )
-                      ),
+                        ),
 
-                      //CONTENEDOR PARA LA ELECCIÓN DE COLOR
-                      Flexible(
-                          child: Align(
+                        //CONTENEDOR PARA LA ELECCIÓN DE COLOR
+                        Align(
                             alignment: Alignment.center,
                             child: Container(
                               margin: EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
-                                color: Colors.pink.shade600,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  width: 3,
-                                  color: Colors.pink.shade700
-                                )
+                                  color: Colors.pink.shade600,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      width: 3,
+                                      color: Colors.pink.shade700
+                                  )
                               ),
                               child: ColorPicker(
                                 heading: Text(
@@ -742,78 +716,73 @@ class _pPrincipalState extends State<pPrincipal> {
                                 },
                               ),
                             )
-                          )
-                      ),
+                        ),
 
-                      //ESPACIO PARA LOS BOTONES DE LA PANTALLA DE AGENDAR EVENTO
-                      Row(
-                        children: [
-                          //CONTENEDOR DEL BOTÓN DE FINALIZAR AGENDA
-                          Flexible(
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Colors.pink.shade600,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        )
-                                    ),
-                                    onPressed: (){
-                                      //Llamada a función para agendar un evento
-                                      //al calendario y permite observarlo en el
-                                      // calendario. Necesita el nombre del
-                                      //evento a agendar
-                                      _agendarVisitaLugar(titulo);
-                                      //Reestablece los valores
-                                      _fechaInicio = DateTime.now();
-                                      _fechaFinalizacion = DateTime.now();
-                                      _colorElegido = Colors.white;
+                        //Empuja el espacio disponible para que los
+                        //botones siempre estén abajo.
+                        Expanded(child: SizedBox()),
 
-                                      //Cierra la tarjeta de agregar
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "¡Todo Listo!",
-                                      style: TextStyle(
-                                          color: Colors.black
-                                      ),
+                        //ESPACIO PARA LOS BOTONES DE LA PANTALLA DE AGENDAR EVENTO
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            //CONTENEDOR DEL BOTÓN DE FINALIZAR AGENDA
+                            ElevatedButton(
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Colors.pink.shade600,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
                                     )
                                 ),
-                              )
-                          ),
+                                onPressed: (){
+                                  //Llamada a función para agendar un evento
+                                  //al calendario y permite observarlo en el
+                                  // calendario. Necesita el nombre del
+                                  //evento a agendar
+                                  _agendarVisitaLugar(titulo);
+                                  //Reestablece los valores
+                                  _fechaInicio = DateTime.now();
+                                  _fechaFinalizacion = DateTime.now();
+                                  _colorElegido = Colors.white;
 
-                          //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA DE AGENDAR
-                          Flexible(
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Colors.pink.shade600,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        )
-                                    ),
-                                    onPressed: (){
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Cerrar",
-                                      style: TextStyle(
-                                          color: Colors.black
-                                      ),
+                                  //Cierra la tarjeta de agregar
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "¡Todo Listo!",
+                                  style: TextStyle(
+                                      color: Colors.black
+                                  ),
+                                )
+                            ),
+
+                            //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA DE AGENDAR
+                            ElevatedButton(
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Colors.pink.shade600,
+                                    foregroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
                                     )
                                 ),
-                              )
-                          )
-                        ],
-                      )
-                    ],
+                                onPressed: (){
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "Cerrar",
+                                  style: TextStyle(
+                                      color: Colors.black
+                                  ),
+                                )
+                            ),
+                          ],
+                        )
+                      ],
+                    )
                   )
-              ),
-            )
+              )
+            ],
         );
       },
       context: context,

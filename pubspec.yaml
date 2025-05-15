@@ -19,12 +19,12 @@ dependencies:
   flex_color_picker: any
   cupertino_calendar_picker: any
 
+  url_launcher: any
 dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   cupertino_calendar_picker: ^2.2.4
   cloud_firestore: ^5.6.7
   flex_color_picker: ^3.7.1
-  url_launcher: ^6.3.1
   cached_network_image: ^3.4.1
 
   flutter_test:
