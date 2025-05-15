@@ -55,8 +55,8 @@ class _pPrincipalState extends State<pPrincipal> {
   DateTime? _fechaFinalizacion = DateTime.now();
   Color? _colorElegido = Colors.blue; //Almacena el color del evento
   final List<Map<String,dynamic>> _visitas=[]; //Lista para almacenar los datos de los eventos
-  List<Appointment> _reuniones = [];
-  MeetingDataSource? _dataSource;
+  List<Appointment> _reuniones = []; //VARIABLE QUE ALMACENA LOS EVENTOS DEL CALENDARIO
+  MeetingDataSource? _dataSource;//VARAIBLE DE FUENTE DE DATOS PARA EL CALENDARIO
 
 
   //VARIABLES PARA LA BASE DE DATOS
@@ -70,14 +70,18 @@ class _pPrincipalState extends State<pPrincipal> {
   void initState() {
     super.initState();
     _entrada(); // Llamada al método asíncrono
-    _dataSource = MeetingDataSource(_reuniones);
-    _cargarEventosDesdeFirestore();
-    //obtenerEventos();
+    _dataSource = MeetingDataSource(_reuniones);//Variable que permite guardar
+    //los eventos para visualizarlos en el calendario
+    _cargarEventosDesdeFirestore();//Variable que permite cargar los eventos
+    //guardados en Firebase, eventos anteriormente guardados y necesarios para
+    //cuando inicie la aplicación
   }
   
   /* PÁGINAS */
   @override
   Future<void> _entrada() async {
+    //Variable para obtener las colecciones de lugares para agendar en la
+    //aplicación
     final snapshot = await FirebaseFirestore.instance.collection('coleccion-lugares').get();
     _paginas = [
 
@@ -261,7 +265,8 @@ class _pPrincipalState extends State<pPrincipal> {
                   monthViewSettings: MonthViewSettings(
                     showAgenda: true,
                   ),
-                  dataSource: _dataSource,
+                  dataSource: _dataSource,//Fuentes de datos para obtener
+                  //registros de firebase
                 ),
               )
           )
@@ -535,6 +540,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                       ),
                                       onPressed: (){
                                         Navigator.of(context).pop();
+                                        //FUNCION PARA MOSTRAR LA TARJETA PARA AGENDAR
+                                        //UN EVENTO, DADO UN EVENTO SELECCIONADO
                                         _agregarAlCalendario(doc['nombre']);
                                       },
                                       child: Text(
@@ -587,7 +594,8 @@ class _pPrincipalState extends State<pPrincipal> {
   }
   /* FIN FUNCIÓN PARA MOSTRAR TARJETA GRANDE */
 
-  /* FUNCIÓN PARA AGREGAR EL LUGAR AL CALENDARIO */
+  /* FUNCIÓN PARA AGREGAR EL LUGAR AL CALENDARIO, NECESITA COMO ENTRADA
+  * EL NOMBRE DEL EVENTO A AGREGAR AL CALENDARIO*/
   void _agregarAlCalendario(String titulo){
     showDialog(
       builder: (context){
@@ -757,8 +765,11 @@ class _pPrincipalState extends State<pPrincipal> {
                                         )
                                     ),
                                     onPressed: (){
+                                      //Llamada a función para agendar un evento
+                                      //al calendario y permite observarlo en el
+                                      // calendario. Necesita el nombre del
+                                      //evento a agendar
                                       _agendarVisitaLugar(titulo);
-
                                       //Reestablece los valores
                                       _fechaInicio = DateTime.now();
                                       _fechaFinalizacion = DateTime.now();
@@ -842,10 +853,17 @@ class _pPrincipalState extends State<pPrincipal> {
     setState(() { _fechaFinalizacion = fechaNueva; });
   }
 
+  //FUNCION PARA GARGAR LOS EVENTOS GUARDADOS EN FIREBASE
   Future<void> _cargarEventosDesdeFirestore() async {
+    //OBTIENE TODOS LOS REGISTROS DE FIREBASE DE LA COLECCION DE EVENTOS
     final snapshot = await FirebaseFirestore.instance.collection('eventos').get();
+    //TRANSFORMA LOS REGISTROS OBTENIDOS DE FIREBASE EM UNA LISTA DEL TIPO
+    //APPOINTMENT
     final List<Appointment> eventosCargados = snapshot.docs.map((doc) {
       final data = doc.data();
+      //OBTIENE CADA EVENTO EN FORMA DE LLAVE-VALOR PARA OBTENER SUS
+      //ELEMENTOS Y CREAR UNA NUEVA LISTA PARA EL VISUALIZAR LOE EVENTOS
+      //EN EL CALENDARIO
       return Appointment(
         startTime: DateTime.parse(data['startTime']),
         endTime: DateTime.parse(data['endTime']),
@@ -854,30 +872,27 @@ class _pPrincipalState extends State<pPrincipal> {
       );
     }).toList();
     setState(() {
+      //AGREGA LOS EVENTOS A LA LISTA DE EVENTOS
       _reuniones.addAll(eventosCargados);
+      //ENVIA A LA FUENTE DE DATOS DEL CALENDARIO LA LISTA DE EVENTOS OBTENIDA
+      //DE FIREBASE
       _dataSource!.notifyListeners(CalendarDataSourceAction.reset, _reuniones);
     });
   }
 
-  /*List<Appointment> obtenerReuniones(){
-    List<Appointment> reuniones = <Appointment>[];
-    final DateTime hoy = _fechaInicio!;
-    final DateTime fechaFinal = _fechaFinalizacion!;
-    final DateTime inicio = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
-    final DateTime end = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
-    reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
-    return reuniones;
-  }*/
-
+  //FUNCION PARA GUARDAR UN EVENTO EN FIREBASE, RECIBE COMO ENTRADA
+  //EL EVENTO PARA GUARDARLO EN FIREBASE
   Future<void> guardarEventoEnFirestore(Appointment evento) async {
     try {
+      //VARIABLE MAP PARA GUARDAR LA INFORMACION DEL EVENTO Y
+      //CON ESE MAP DEFINIDO, GUARDAR LA INFORMACIÓN EN FIREBASE
       final eventoData = {
         'startTime': evento.startTime.toIso8601String(),
         'endTime': evento.endTime.toIso8601String(),
         'subject': evento.subject,
         'color': evento.color.value32bit,
       };
-      // Guardar en la colección "eventos"
+      //GUARDA EL REGISTRO DE EVENTO EN FIREBASE
       await FirebaseFirestore.instance.collection('eventos').add(eventoData);
       print('Evento guardado correctamente en Firestore.');
     } catch (e) {
@@ -885,6 +900,8 @@ class _pPrincipalState extends State<pPrincipal> {
     }
   }
 
+  //FUNCION PARA IMPRIMIR EN CONSOLA LOS EVENTOS
+  //ALMACENADOS EN FIREBASE - NO ES NECESARIO
   Future<void> obtenerEventos() async {
     try {
       // Referencia a la colección 'eventos'
@@ -917,14 +934,16 @@ class _pPrincipalState extends State<pPrincipal> {
     }
   }
 
+  //FUNCION PARA AGENDAR UN EVENTO EN EL CALENDARIO
   void _agendarVisitaLugar(String subject) async {
-    List<Appointment> reuniones = obtenerReuniones();
     final DateTime hoy = _fechaInicio!;
     final DateTime fechaFinal = _fechaFinalizacion!;
+    //DEFINE UNA HORA DE INICIO DE UN EVENTO
     final DateTime startTime = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
+    //DEFINE UNA HORA DE FIN DE UN EVENTO
     final DateTime endTime = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
-    //reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
 
+    //CREA UN EVENTO CON LA INFORMACIÓN ENVIADA POR EL USUARIO
     final nuevoEvento = Appointment(
       startTime: startTime,
       endTime: endTime,
@@ -933,16 +952,12 @@ class _pPrincipalState extends State<pPrincipal> {
     );
 
     setState(() {
+      //AÑADE UN EVENTO A UNA LISTA DE EVENTOS DEL CALENDARIO
       _reuniones.add(nuevoEvento);
     });
-
+    //ENVIA COMO ENTRADA UN EVENTO PARA GUARDARLO EN FIREBASE
     guardarEventoEnFirestore(nuevoEvento);
   }
-
-List<Appointment> obtenerReuniones(){
-  List<Appointment> reuniones = <Appointment>[];
-  return reuniones;
-}
 
   /*void _agendarVisitaLugar() async{
     Map<String, dynamic> datos = {
@@ -1036,6 +1051,7 @@ List<Appointment> obtenerReuniones(){
 }
 
 /* CÓDIGO CREADO EN LA CLASE DE PROGRAMACIÓN MÓVIL */
+//DEFINE UNA FUENTE DE DATOS PARA EL CALENDARIO
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Appointment> source) {
     appointments = source;
