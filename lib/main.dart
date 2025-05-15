@@ -53,7 +53,6 @@ class _pPrincipalState extends State<pPrincipal> {
   DateTime? _fechaInicio = DateTime.now();
   DateTime? _fechaFinalizacion = DateTime.now();
   Color? _colorElegido = Colors.blue; //Almacena el color del evento
-  final List<Map<String,dynamic>> _visitas=[]; //Lista para almacenar los datos de los eventos
   List<Appointment> _reuniones = []; //VARIABLE QUE ALMACENA LOS EVENTOS DEL CALENDARIO
   MeetingDataSource? _dataSource;//VARAIBLE DE FUENTE DE DATOS PARA EL CALENDARIO
 
@@ -770,7 +769,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                       //Reestablece los valores
                                       _fechaInicio = DateTime.now();
                                       _fechaFinalizacion = DateTime.now();
-                                      _colorElegido = Colors.white!;
+                                      _colorElegido = Colors.white;
 
                                       //Cierra la tarjeta de agregar
                                       Navigator.of(context).pop();
