@@ -146,6 +146,7 @@ class _pPrincipalState extends State<pPrincipal> {
                         child: Text(
                           doc['nombre'],
                           softWrap: true,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
