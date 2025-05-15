@@ -71,6 +71,8 @@ class _pPrincipalState extends State<pPrincipal> {
     super.initState();
     _entrada(); // Llamada al método asíncrono
     _dataSource = MeetingDataSource(_reuniones);
+    _cargarEventosDesdeFirestore();
+    //obtenerEventos();
   }
   
   /* PÁGINAS */
@@ -840,6 +842,23 @@ class _pPrincipalState extends State<pPrincipal> {
     setState(() { _fechaFinalizacion = fechaNueva; });
   }
 
+  Future<void> _cargarEventosDesdeFirestore() async {
+    final snapshot = await FirebaseFirestore.instance.collection('eventos').get();
+    final List<Appointment> eventosCargados = snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Appointment(
+        startTime: DateTime.parse(data['startTime']),
+        endTime: DateTime.parse(data['endTime']),
+        subject: data['subject'],
+        color: Color(data['color']),
+      );
+    }).toList();
+    setState(() {
+      _reuniones.addAll(eventosCargados);
+      _dataSource!.notifyListeners(CalendarDataSourceAction.reset, _reuniones);
+    });
+  }
+
   /*List<Appointment> obtenerReuniones(){
     List<Appointment> reuniones = <Appointment>[];
     final DateTime hoy = _fechaInicio!;
@@ -849,22 +868,75 @@ class _pPrincipalState extends State<pPrincipal> {
     reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
     return reuniones;
   }*/
-  void _agendarVisitaLugar(String titulo) async {
+
+  Future<void> guardarEventoEnFirestore(Appointment evento) async {
+    try {
+      final eventoData = {
+        'startTime': evento.startTime.toIso8601String(),
+        'endTime': evento.endTime.toIso8601String(),
+        'subject': evento.subject,
+        'color': evento.color.value32bit,
+      };
+      // Guardar en la colección "eventos"
+      await FirebaseFirestore.instance.collection('eventos').add(eventoData);
+      print('Evento guardado correctamente en Firestore.');
+    } catch (e) {
+      print('Error al guardar el evento: $e');
+    }
+  }
+
+  Future<void> obtenerEventos() async {
+    try {
+      // Referencia a la colección 'eventos'
+      CollectionReference eventos = FirebaseFirestore.instance.collection('eventos');
+
+      // Obtener todos los documentos de la colección
+      QuerySnapshot snapshot = await eventos.get();
+
+      // Recorrer e imprimir cada documento
+      for (var doc in snapshot.docs) {
+        // Convertir a Map para acceder a los campos
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+        // Acceder a valores específicos
+        String startTime = data['startTime'] ?? 'Fecha no disponible';
+        String endTime = data['endTime'] ?? 'Fecha no disponible';
+        String subject = data['subject'] ?? 'Sin Asunto';
+        int colorValue = data['color'] ?? 0xFF000000; // Negro por defecto
+
+        // Imprimir en consola
+        print('ID: ${doc.id}');
+        print('Start Time: $startTime');
+        print('End Time: $endTime');
+        print('Subject: $subject');
+        print('Color Value: $colorValue');
+        print('----------------------------');
+      }
+    } catch (e) {
+      print('Error al obtener los eventos: $e');
+    }
+  }
+
+  void _agendarVisitaLugar(String subject) async {
     List<Appointment> reuniones = obtenerReuniones();
     final DateTime hoy = _fechaInicio!;
     final DateTime fechaFinal = _fechaFinalizacion!;
-    final DateTime inicio = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
-    final DateTime end = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
+    final DateTime startTime = DateTime(hoy.year, hoy.month, hoy.day,hoy.hour,hoy.minute,hoy.second);
+    final DateTime endTime = DateTime(fechaFinal.year, fechaFinal.month, fechaFinal.day,fechaFinal.hour,fechaFinal.minute,fechaFinal.second);
     //reuniones.add(Appointment(startTime: inicio, endTime: end, subject: 'test', color: Colors.blue));
+
+    final nuevoEvento = Appointment(
+      startTime: startTime,
+      endTime: endTime,
+      subject: subject,
+      color: _colorElegido!,
+    );
+
     setState(() {
-      _reuniones.add(Appointment(
-        startTime: inicio,
-        endTime: end,
-        subject: titulo,
-        color: _colorElegido!,
-      ));
-      _dataSource!.notifyListeners(CalendarDataSourceAction.add, _reuniones);
+      _reuniones.add(nuevoEvento);
     });
+
+    guardarEventoEnFirestore(nuevoEvento);
   }
 
 List<Appointment> obtenerReuniones(){
