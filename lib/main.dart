@@ -2,6 +2,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 //Imports para la página principal
 import 'package:flutter/material.dart'; //Import para usar widgets y hacer interfaces
@@ -18,12 +19,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const ExploraCDMX_app());
+  runApp(const ExploraCDMXApp());
 }
 
 /* CLASE PRINCIPAL DE UN WIDGET SIN ESTADO */
-class ExploraCDMX_app extends StatelessWidget {
-  const ExploraCDMX_app({super.key});
+class ExploraCDMXApp extends StatelessWidget {
+  const ExploraCDMXApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,21 +35,288 @@ class ExploraCDMX_app extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
         useMaterial3: true,
       ),
-      home: const pPrincipal(title: 'Hora de Explorar'),
+      home: const AuthWrapper(),
     );
   }
 }
 
+/* ESPACIO PARA LA AUTENTICACIÓN / INICIO DE SESIÓN */
+class ServicioAuth {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  //FUNCIÓN DE REGISTRO
+  Future<User?> signUp({required String email, required String password}) async {
+    try {
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      //Registro de usuario exitoso
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('Error de Registro: ${e.message}');
+      return null;
+    }
+  }
+
+  //FUNCIÓN DE INICIO DE SESIÓN
+  Future<User?> signIn({required String email, required String password}) async {
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      //Inicio de sesión exitoso
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('Error de Inicio de Sesión: ${e.message}');
+      return null;
+    }
+  }
+
+  Future<User?> signOut() async {
+    await _auth.signOut();
+  }
+
+  //OBTENER EL ESTADO DE AUTENTICACIÓN
+  Stream<User?> get userChanges => _auth.authStateChanges();
+}
+
+/* CLASE PARA MOSTRAR PRIMERO LA PANTALLA DE INICIO O EL INICIO DE LA APP */
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: ServicioAuth().userChanges, // Escucha el estado
+      builder: (context, snapshot) {
+        // Muestra una pantalla de carga mientras se decide
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        // Si el usuario SI está logueado, muestra la página de principa.
+        if (snapshot.hasData && snapshot.data != null) {
+          return const PPrincipal(title: 'Hora de Explorar');
+        }
+
+        // Si el usuario NO está logueado, muestra la página de inicio de sesión.
+        return const PInicioSesion();
+      },
+    );
+  }
+}
+
+class PInicioSesion extends StatefulWidget {
+  const PInicioSesion({super.key});
+
+  @override
+  State<PInicioSesion> createState() => _PInicioSesionState();
+}
+
+class _PInicioSesionState extends State<PInicioSesion> {
+    //Controlador de autenticación por correo y contraseña
+    final TextEditingController _controladorCorreo = TextEditingController();
+    final TextEditingController _controladorContra = TextEditingController();
+
+    /* MÉTODO DE DESECHO DE CONTROLADORES */
+    @override
+    void dispose() {
+      _controladorCorreo.dispose();
+      _controladorContra.dispose();
+      super.dispose();
+    }
+    /* FIN MÉTODO DE DESECHO DE CONTROLADORES */
+
+    /* MÉTODO DE INICIO DE SESIÓN */
+    void _InicioHandler() async {
+      final email = _controladorCorreo.text.trim();
+      final password = _controladorContra.text.trim();
+
+      if(email.isEmpty || password.isEmpty) {
+        _mostrarSnackBar("Error. Correo y contraseña obligatorios.");
+      }
+
+      try {
+        User? user = await ServicioAuth().signIn(
+            email: email, password: password);
+
+        if (user != null) {
+          _mostrarSnackBar("Inicio de sesión exitoso.", isError: false);
+        } else {
+          _mostrarSnackBar("Error en el inicio de sesión.");
+          return;
+        }
+      } on FirebaseAuthException catch (e) {
+        String mensajeError = "";
+        if(e.code == 'user-not-found' || e.code == 'wrong-password') {
+          mensajeError == "Usuario no encontrado o contraseña invalida.";
+        } else if(e.code == 'invalid-email') {
+          mensajeError == "No es un correo.";
+        }
+        _mostrarSnackBar(mensajeError);
+      } catch (e) {
+        _mostrarSnackBar("Ha sucedido un error. Intente nuevamente.");
+      }
+    }
+    /* FIN MÉTODO DE INICIO DE SESIÓN */
+
+    /* MÉTODO DE REGISTRO DE USUARIO */
+    void _RegistroHandler() async {
+      final email = _controladorCorreo.text.trim();
+      final password = _controladorContra.text.trim();
+
+      if(email.isEmpty) {
+        _mostrarSnackBar("Error. No colocaste un correo.");
+      }
+
+      if(password.length < 8) {
+        _mostrarSnackBar("Error. La contraseña es menor a 8 caracteres");
+        return;
+      }
+
+      try {
+        User? user = await ServicioAuth().signUp(
+            email: email, password: password);
+
+        if (user != null) {
+          _mostrarSnackBar("Registro exitoso.", isError: false);
+        }
+      } on FirebaseAuthException catch (e) {
+        String mensajeError = "";
+        if(e.code == 'email-already-in-use') {
+          mensajeError = "Correo en uso. Intente otro correo.";
+        } else if(e.code == 'invalid-email') {
+          mensajeError = "No es un correo.";
+        }
+        _mostrarSnackBar(mensajeError);
+      } catch (e) {
+        _mostrarSnackBar("Ha sucedido un error. Intente nuevamente.");
+      }
+    }
+    /* FIN MÉTODO DE REGISTRO DE USUARIO */
+
+    //ESQUELETO MOSTRAR MENSAJES
+    void _mostrarSnackBar(String message, {bool isError = true}) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? Colors.redAccent : Colors.green,
+        ),
+      );
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 4,
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Text(
+                          "ExploraCDMX",
+                          style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: 38,
+                              fontWeight: FontWeight.bold
+                          )
+                      ),
+                      Text(
+                          "Inicio de Sesión",
+                          style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold
+                          )
+                      ),
+                    ]
+                  )
+                ),
+
+                //CAMPOS PARA CORREO Y CONTRASEÑA
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      //CAMPO PARA CORREO
+                      TextField(
+                        controller: _controladorCorreo,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                            labelText: 'Correo Electrónico', border: OutlineInputBorder()),
+                      ),
+                      SizedBox(height: 16),
+
+                      //CAMPO PARA CONTRASEÑA
+                      TextField(
+                        controller: _controladorContra,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            labelText: 'Contraseña', border: OutlineInputBorder()),
+                      ),
+                      SizedBox(height: 16),
+                    ]
+                  )
+                ),
+
+                //BOTÓN DE INICIO DE SESIÓN
+                ElevatedButton(
+                  onPressed: _InicioHandler,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(16),
+                    backgroundColor: Colors.pinkAccent
+                  ),
+                  child: Text(
+                    "INICIAR SESIÓN",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black
+                    )
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                //BARRA ESPACIADORA DE CONCEPTOS
+                const Divider(),
+                SizedBox(height: 16),
+
+                //BOTÓN DE REGISTRO
+                OutlinedButton(
+                  onPressed: _RegistroHandler,
+                  style: OutlinedButton.styleFrom(
+                    padding: EdgeInsets.all(16),
+                    side: BorderSide(color: Colors.pink, width: 2)
+                  ),
+                  child: Text(
+                    "REGISTRAME",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.pink
+                    )
+                  )
+                ),
+                SizedBox(height: 16),
+              ]
+          )
+        ),
+      );
+    }
+}
+
 /* WIDGET CON ESTADO QUE CAMBIA SEGÚN LA INTERACCIÓN CON EL USUARIO*/
-class pPrincipal extends StatefulWidget {
-  const pPrincipal({super.key, required this.title});
+class PPrincipal extends StatefulWidget {
+  const PPrincipal({super.key, required this.title});
   final String title;
   @override
-  State<pPrincipal> createState() => _pPrincipalState();
+  State<PPrincipal> createState() => _PPrincipalState();
 }
 
 /* ESTADO PRINCIPAL CON EL QUE INICIA LA APLICACIÓN */
-class _pPrincipalState extends State<pPrincipal> {
+class _PPrincipalState extends State<PPrincipal> {
   /* ESPACIO DE LAS VARIABLES GLOBALES */
       //Indice del elemento en la lista _paginas usado para cambiar entre ellos.
       var _indiceMenu = 0;
@@ -60,6 +328,9 @@ class _pPrincipalState extends State<pPrincipal> {
       List<Widget> _paginas = [];
 
       /*VARIABLES PARA EL USO DEL CALENDARIO*/
+      //Fecha de inicio y final para antes de seleccionar.
+      DateTime now = DateTime.now();
+
       //Fecha de inicio de un solo evento que se muestra en el calendario.
       DateTime? _fechaInicio = DateTime.now();
 
@@ -89,6 +360,14 @@ class _pPrincipalState extends State<pPrincipal> {
         _cargarEventosDesdeFirestore();
       }
   /* FIN METODO DE INICIALIZACIÓN DE TODOS LOS WIDGETS */
+
+  /* MÉTODO DE DESECHO DE CONTROLADORES */
+  @override
+  void dispose() {
+    _controladorPagina.dispose();
+    super.dispose();
+  }
+  /* FIN MÉTODO DE DESECHO DE CONTROLADORES */
 
   /* FUNCIONES DEL CALENDARIO */
       void _fijarFechaInicial(DateTime fechaNueva) {
@@ -137,7 +416,11 @@ class _pPrincipalState extends State<pPrincipal> {
         try {
           //Variable MAP para guardar la información del evento y con ese MAP
           //definido, guardar la información en Firebase.
+          final user = FirebaseAuth.instance.currentUser;
+          if(user == null) return;
+
           final eventoData = {
+            'uid': user.uid,
             'startTime': evento.startTime.toIso8601String(),
             'endTime': evento.endTime.toIso8601String(),
             'subject': evento.subject,
@@ -145,17 +428,21 @@ class _pPrincipalState extends State<pPrincipal> {
           };
           //Guarda el registro del evento en Firebase.
           await FirebaseFirestore.instance.collection('eventos').add(eventoData);
-          print('Evento guardado correctamente en Firestore.');
         } catch (e) {
-          print('Error al guardar el evento: $e');
+          throw Error();
         }
       }
 
       /*FUNCION PARA GARGAR LOS EVENTOS GUARDADOS EN FIREBASE*/
       Future<void> _cargarEventosDesdeFirestore() async {
+        final user = FirebaseAuth.instance.currentUser;
+        if(user == null) return;
         //Obtiene todos los registros de Firebase de la colección de eventos.
-        final snapshot = await FirebaseFirestore.instance.collection('eventos')
+        final snapshot = await FirebaseFirestore.instance
+            .collection('eventos')
+            .where('uid', isEqualTo: user.uid)
             .get();
+
         //Transforma los registros obtenidos de Firebase en una lista del tipo
         //appointment
         final List<Appointment> eventosCargados = snapshot.docs.map((doc) {
@@ -199,17 +486,9 @@ class _pPrincipalState extends State<pPrincipal> {
             String endTime = data['endTime'] ?? 'Fecha no disponible';
             String subject = data['subject'] ?? 'Sin Asunto';
             int colorValue = data['color'] ?? 0xFF000000; // Negro por defecto
-
-            // Imprimir en consola
-            print('ID: ${doc.id}');
-            print('Start Time: $startTime');
-            print('End Time: $endTime');
-            print('Subject: $subject');
-            print('Color Value: $colorValue');
-            print('----------------------------');
           }
         } catch (e) {
-          print('Error al obtener los eventos: $e');
+          throw Error();
         }
       }
 
@@ -460,13 +739,10 @@ class _pPrincipalState extends State<pPrincipal> {
                                           borderRadius: BorderRadius.circular(4),
                                         )
                                     ),
-                                    onPressed: () =>
-                                        setState(() {
-                                          launchUrl(
-                                              enlace,
-                                              mode: LaunchMode.externalApplication
-                                          );
-                                        }),
+                                    onPressed: () => launchUrl(
+                                        enlace,
+                                        mode: LaunchMode.externalApplication
+                                    ),
                                     child: Align(
                                       alignment: Alignment.center,
                                       child: Text(
@@ -608,8 +884,8 @@ class _pPrincipalState extends State<pPrincipal> {
                                           buttonDecoration: PickerButtonDecoration(
                                               backgroundColor: Colors.pink.shade700
                                           ),
-                                          minimumDateTime: DateTime(2024, 7, 10),
-                                          maximumDateTime: DateTime(2025, 7, 10),
+                                          minimumDateTime: DateTime(now.year, now.month, now.day),
+                                          maximumDateTime: DateTime(now.year + 4, now.month, now.day),
                                           initialDateTime: DateTime.now(),
                                           currentDateTime: DateTime.now(),
                                           mode: CupertinoCalendarMode.dateTime,
@@ -729,7 +1005,7 @@ class _pPrincipalState extends State<pPrincipal> {
                                       //Reestablece los valores
                                       _fechaInicio = DateTime.now();
                                       _fechaFinalizacion = DateTime.now();
-                                      _colorElegido = Colors.white;
+                                      _colorElegido = Colors.pinkAccent;
 
                                       //Cierra la tarjeta de agregar
                                       Navigator.of(context).pop();
@@ -806,6 +1082,7 @@ class _pPrincipalState extends State<pPrincipal> {
         //aplicación
         final snapshot = await FirebaseFirestore.instance.collection('coleccion-lugares').get();
         _paginas = [
+          //AQUI AGREGAR EL COLOR DE LA PÁGINA
 
           /* CÓDIGO PARA LA PANTALLA PRINCIPAL */
           ListView(
@@ -879,8 +1156,6 @@ class _pPrincipalState extends State<pPrincipal> {
                           child: CachedNetworkImage(
                             imageUrl: doc['imagen'],
                             fit: BoxFit.cover,
-                            //PLACEHOLDER PARA LA ESPERA DE LA CARGA DE LA IMAGEN.
-                            placeholder: (context, url) => CircularProgressIndicator(),
                             //WIDGET DE ERROR SI NO SE CARGÓ LA IMAGEN.
                             errorWidget: (context, url, error) => Icon(Icons.error),
                           ),
@@ -1014,9 +1289,42 @@ class _pPrincipalState extends State<pPrincipal> {
               /* FIN CÓDIGO DEL CALENDARIO EN LA PANTALLA SECUNDARIA*/
 
             ],
-          )
+          ),
           /* FIN CÓDIGO PARA EL CALENDARIO */
 
+          /* CÓDIGO PARA LA PANTALLA DE PERFIL DE USUARIO */
+          Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 18),
+                child: Text(
+                  "Tu Cuenta",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold
+                  )
+                )
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await ServicioAuth().signOut();
+                },
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(16),
+                    backgroundColor: Colors.pinkAccent
+                ),
+                child: Text(
+                    "CERRAR SESIÓN",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black
+                    )
+                ),
+              ),
+              SizedBox(height: 16),
+            ]
+          )
+          /* FIN CÓDIGO PARA LA PANTALLA DE PERFIL DE USUARIO */
         ];
       }
       /* FIN DE LA LISTA DE PÁGINAS */
@@ -1039,7 +1347,6 @@ class _pPrincipalState extends State<pPrincipal> {
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _indiceMenu,
             backgroundColor: Colors.pinkAccent,
-
             selectedItemColor: Colors.black,
             unselectedItemColor: Colors.black45,
             onTap: _itemPresionado,
@@ -1055,6 +1362,12 @@ class _pPrincipalState extends State<pPrincipal> {
                       Icons.calendar_month
                   ),
                   label: "Calendario"
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.account_box
+                  ),
+                  label: "Tú"
               )
             ],
           ),
