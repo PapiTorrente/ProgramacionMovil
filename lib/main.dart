@@ -74,8 +74,22 @@ class ServicioAuth {
     }
   }
 
+  //FUNCIÓN PARA OBTENER CORREO DE USUARIO
+  Future<User?> borrarCuenta() async {
+    await _auth.currentUser?.delete();
+    return null;
+  }
+
+  //FUNCIÓN PARA REESTABLECER CONTRASEÑA
+  Future<User?> resetPass({required String email}) async {
+    await _auth.sendPasswordResetEmail(email: email);
+    return null;
+  }
+
+  //FUNCIÓN DE FIN DE SESIÓN
   Future<User?> signOut() async {
     await _auth.signOut();
+    return null;
   }
 
   //OBTENER EL ESTADO DE AUTENTICACIÓN
@@ -197,6 +211,20 @@ class _PInicioSesionState extends State<PInicioSesion> {
     }
     /* FIN MÉTODO DE REGISTRO DE USUARIO */
 
+    /* MÉTODO PARA RECUPERAR CONTRASEÑA */
+    void _recuperarContrasenia() {
+      final email = _controladorCorreo.text.trim();
+
+      if(email.isEmpty) {
+        _mostrarSnackBar("Error. No hay correo para enviar recuperación de contraseña.");
+      }
+
+      ServicioAuth().resetPass(email: email);
+      _mostrarSnackBar("Correo enviado con éxito.");
+
+    }
+    /* FIN MÉTODO PARA RECUPERAR CONTRASEÑA */
+
     //ESQUELETO MOSTRAR MENSAJES
     void _mostrarSnackBar(String message, {bool isError = true}) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -280,10 +308,6 @@ class _PInicioSesionState extends State<PInicioSesion> {
                 ),
                 SizedBox(height: 16),
 
-                //BARRA ESPACIADORA DE CONCEPTOS
-                const Divider(),
-                SizedBox(height: 16),
-
                 //BOTÓN DE REGISTRO
                 OutlinedButton(
                   onPressed: _RegistroHandler,
@@ -299,7 +323,26 @@ class _PInicioSesionState extends State<PInicioSesion> {
                     )
                   )
                 ),
+
                 SizedBox(height: 16),
+                //BARRA ESPACIADORA DE CONCEPTOS
+                const Divider(),
+                SizedBox(height: 16),
+
+                OutlinedButton(
+                    onPressed: _recuperarContrasenia,
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.all(16),
+                      side: BorderSide(color: Colors.pink, width: 2)
+                    ),
+                    child: Text(
+                      "¿Olvidaste tu contraseña?",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.pink
+                      ),
+                    )
+                )
               ]
           )
         ),
@@ -345,6 +388,9 @@ class _PPrincipalState extends State<PPrincipal> {
 
       //Fuente de los datos para el llenado del calendario.
       MeetingDataSource? _dataSource;
+
+      late final correo = FirebaseAuth.instance.currentUser?.email;
+
   /* FIN ESPACIO DE LAS VARIABLES GLOBALES */
 
   /* METODO DE INICIALIZACIÓN DE TODOS LOS WIDGETS */
@@ -1305,6 +1351,41 @@ class _PPrincipalState extends State<PPrincipal> {
                   )
                 )
               ),
+              Container(
+                padding: EdgeInsets.all(3),
+                child: Text(
+                  "$correo",
+                  style: TextStyle(
+                    fontSize: 20
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 16),
+
+              //BOTÓN PARA REESTABLECER CONTRASEÑA
+              ElevatedButton(
+                onPressed: () async {
+                  await ServicioAuth().resetPass(email: correo.toString());
+                },
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(16),
+                    backgroundColor: Colors.pinkAccent
+                ),
+                child: Text(
+                    "Reestablecer mi contraseña",
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black
+                    )
+                ),
+              ),
+
+              SizedBox(height: 16),
+              const Divider(),
+              SizedBox(height: 16),
+
+              //BOTÓN PARA CERRAR SESIÓN
               ElevatedButton(
                 onPressed: () async {
                   await ServicioAuth().signOut();
@@ -1322,6 +1403,25 @@ class _PPrincipalState extends State<PPrincipal> {
                 ),
               ),
               SizedBox(height: 16),
+
+              //BOTÓN PARA ELIMINAR USUARIO
+              OutlinedButton(
+                  onPressed: () async {
+                    await ServicioAuth().borrarCuenta();
+                  },
+                  style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+                      backgroundColor: Colors.redAccent,
+                      side: BorderSide(color: Colors.red, width: 2)
+                  ),
+                  child: Text(
+                      "Borrar cuenta",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black
+                      )
+                  )
+              ),
             ]
           )
           /* FIN CÓDIGO PARA LA PANTALLA DE PERFIL DE USUARIO */
