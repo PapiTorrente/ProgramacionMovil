@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.urbenia.explora-cdmx"
+        applicationId = "com.unam.proyecto"
         minSdkVersion = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
