@@ -569,8 +569,8 @@ class _PPrincipalState extends State<PPrincipal> {
                         decoration: BoxDecoration(
                             color: Colors.pinkAccent,
                             border: Border.all(
-                                width: 4,
-                                color: Colors.pink
+                                width: 6,
+                                color: Colors.pinkAccent
                             ),
                             borderRadius: BorderRadius.circular(8)
                         ),
@@ -584,12 +584,15 @@ class _PPrincipalState extends State<PPrincipal> {
                               //DECORACIÓN DEL CONTENEDOR DE LA IMAGEN EN LA TARJETA
                               //GRANDE
                               decoration: BoxDecoration(
-                                  border: Border.all(width: 4),
-                                  borderRadius: BorderRadius.circular(8)
+                                  border: Border.all(
+                                      width: 4,
+                                      color: Colors.pink.shade600
+                                  ),
+                                  borderRadius: BorderRadius.circular(2)
                               ),
 
                               //IMAGEN DE LA TARJETA GRANDE
-                              //SizedBoz forza a que la imagen ocupe el tamaño que
+                              //SizedBox forza a que la imagen ocupe el tamaño que
                               //queremos
                               child: SizedBox(
                                 width: double.infinity,
@@ -631,25 +634,6 @@ class _PPrincipalState extends State<PPrincipal> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
-                                  //CONTENEDOR DEL TEXTO DESCRIPCIÓN
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.text_snippet_outlined,
-                                        size: 24,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        "Descripción:",
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            color: Colors.black,
-                                            decoration: TextDecoration.none
-                                        ),
-                                      ),
-                                    ],
-                                  ),
 
                                   //CONTENEDOR DEL TEXTO "DESCRIPCIÓN QUE DEBE CAMBIARSE DINÁMICAMENTE
                                   Text(
@@ -1172,8 +1156,8 @@ class _PPrincipalState extends State<PPrincipal> {
                   decoration: BoxDecoration(
                       color: Colors.pinkAccent,
                       border: Border.all(
-                          width: 4,
-                          color: Colors.pink
+                          width: 6,
+                          color: Colors.pinkAccent
                       ),
                       borderRadius: BorderRadius.circular(8)
                   ),
@@ -1188,8 +1172,11 @@ class _PPrincipalState extends State<PPrincipal> {
                         //DECORACIÓN DEL BORDE DEL CONTENEDOR DE LA IMAGEN EN LA
                         //TARJETA DE LA PANTALLA PRINCIPAL
                         decoration: BoxDecoration(
-                            border: Border.all(width: 4),
-                            borderRadius: BorderRadius.circular(8)
+                            border: Border.all(
+                                width: 4,
+                                color: Colors.pink.shade600
+                            ),
+                            borderRadius: BorderRadius.circular(2)
                         ),
 
                         //IMAGEN EN LA TARJETA DE LA PÁGINA PRINCIPAL
