@@ -633,8 +633,8 @@ class _PPrincipalState extends State<PPrincipal> {
                             Container(
                               decoration: BoxDecoration(
                                 border: Border(
-                                  left: BorderSide(color: Colors.pinkAccent, width: 8),
-                                  right: BorderSide(color: Colors.pinkAccent, width: 8)
+                                  left: BorderSide(color: Colors.pinkAccent, width: 4),
+                                  right: BorderSide(color: Colors.pinkAccent, width: 2),
                                 )
                               ),
                               child: Column(
@@ -1391,7 +1391,7 @@ class _PPrincipalState extends State<PPrincipal> {
             currentIndex: _indiceMenu,
             backgroundColor: Colors.pink.shade600,
             selectedItemColor: Colors.black,
-            unselectedItemColor: Colors.black45,
+            unselectedItemColor: Colors.black38,
             onTap: _itemPresionado,
             items: const <BottomNavigationBarItem> [
               BottomNavigationBarItem(
