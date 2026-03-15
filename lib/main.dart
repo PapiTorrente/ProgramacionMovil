@@ -760,229 +760,217 @@ class _PPrincipalState extends State<PPrincipal> {
         //bloquea el resto de la aplicación.
         showDialog(
           builder: (context) {
-            return Flex(
-              direction: Axis.horizontal,
-              children: [
 
-                /* CÓDIGO DE LA TARJETA PARA AGREGAR AL CALENDARIO */
-                Expanded(
-                    child: Container(
-                        padding: EdgeInsets.all(4), // Hacia adentro
-                        margin: EdgeInsets.all(10), // Hacia afuera
-                        decoration: BoxDecoration(
-                            color: Colors.pinkAccent,
-                            border: Border.all(
-                                width: 4,
-                                color: Colors.pinkAccent
+            /* CÓDIGO DE LA TARJETA PARA AGREGAR AL CALENDARIO */
+            return Dialog(
+              insetPadding: EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(8)),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: Colors.pinkAccent,
+                    border: Border.all(
+                        width: 4,
+                        color: Colors.pinkAccent
+                    ),
+                    borderRadius: BorderRadius.circular(8)
+                ),
+
+                //CONTENIDO DENTRO DE LA TARJETA DE AGREGAR AL CALENDARIO
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+
+                    //CONTENEDOR PARA EL TEXTO DE LA FECHA DE INICIO
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                          color: Colors.pink.shade800,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              width: 3,
+                              color: Colors.pink.shade800
+                          )
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Día y hora de Inicio:",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                decoration: TextDecoration.none
                             ),
-                            borderRadius: BorderRadius.circular(8)
+                          ),
+                          SizedBox(height: 6),
+                          SizedBox(
+                            child: CupertinoCalendarPickerButton(
+                              buttonDecoration: PickerButtonDecoration(
+                                  backgroundColor: Colors.pinkAccent
+                              ),
+                              minimumDateTime: DateTime(now.year, now.month, now.day),
+                              maximumDateTime: DateTime(now.year + 4, now.month, now.day),
+                              initialDateTime: DateTime.now(),
+                              currentDateTime: DateTime.now(),
+                              mode: CupertinoCalendarMode.dateTime,
+                              timeLabel: 'Inicio',
+                              onDateTimeChanged: (date) {
+                                _fijarFechaInicial(date);
+                              },),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 8),
+
+                    //CONTENEDOR PARA EL TEXTO DE LA FECHA DE FINALIZACIÓN
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                          color: Colors.pink.shade800,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              width: 3,
+                              color: Colors.pink.shade800
+                          )
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Día y hora de Finalización:",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                decoration: TextDecoration.none
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          SizedBox(
+                            child: CupertinoCalendarPickerButton(
+                              buttonDecoration: PickerButtonDecoration(
+                                  backgroundColor: Colors.pinkAccent
+                              ),
+                              minimumDateTime: DateTime.now(),
+                              maximumDateTime: DateTime(2080, 12, 12),
+                              initialDateTime: DateTime.now(),
+                              currentDateTime: DateTime.now(),
+                              mode: CupertinoCalendarMode.dateTime,
+                              timeLabel: 'Final',
+                              onDateTimeChanged: (date) {
+                                _fijarFechaFinal(date);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 8),
+
+                    //CONTENEDOR PARA LA ELECCIÓN DE COLOR
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                          color: Colors.pinkAccent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              width: 8,
+                              color: Colors.pink.shade800
+                          )
+                      ),
+
+                      child: ColorPicker(
+                        pickersEnabled: const <ColorPickerType, bool>{
+                          ColorPickerType.primary: true,
+                          ColorPickerType.accent: false,
+                        },
+                        selectedPickerTypeColor: Colors.white,
+                        heading: Text(
+                          "Elige un color",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              decoration: TextDecoration.none
+                          ),
+                        ),
+                        subheading: Text(
+                          "Elige la variación",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              decoration: TextDecoration.none
+                          ),
+                        ),
+                        onColorChanged: (Color value) {
+                          _colorElegido = value;
+                        },
+                      ),
+                    ),
+
+                    SizedBox(height: 8),
+
+                    //ESPACIO PARA LOS BOTONES DE LA PANTALLA DE AGENDAR EVENTO
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        //CONTENEDOR DEL BOTÓN DE FINALIZAR AGENDA
+                        ElevatedButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Colors.pink.shade800,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                )
+                            ),
+                            onPressed: () {
+                              //Llamada a función para agendar un evento
+                              //al calendario y permite observarlo en el
+                              // calendario. Necesita el nombre del
+                              //evento a agendar
+                              _agendarVisitaLugar(titulo);
+                              //Reestablece los valores
+                              _fechaInicio = DateTime.now();
+                              _fechaFinalizacion = DateTime.now();
+                              _colorElegido = Colors.pinkAccent;
+
+                              //Cierra la tarjeta de agregar
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "¡Todo Listo!",
+                              style: TextStyle(
+                                  color: Colors.white
+                              ),
+                            )
                         ),
 
-                        //CONTENIDO DENTRO DE LA TARJETA DE AGREGAR AL CALENDARIO
-                        child: Column(
-                          children: [
-
-                            //CONTENEDOR PARA EL TEXTO DE LA FECHA DE INICIO
-                            Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                      color: Colors.pink.shade800,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          width: 3,
-                                          color: Colors.pink.shade800
-                                      )
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "Día y hora de Inicio:",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.white,
-                                            decoration: TextDecoration.none
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      SizedBox(
-                                        child: CupertinoCalendarPickerButton(
-                                          buttonDecoration: PickerButtonDecoration(
-                                              backgroundColor: Colors.pinkAccent
-                                          ),
-                                          minimumDateTime: DateTime(now.year, now.month, now.day),
-                                          maximumDateTime: DateTime(now.year + 4, now.month, now.day),
-                                          initialDateTime: DateTime.now(),
-                                          currentDateTime: DateTime.now(),
-                                          mode: CupertinoCalendarMode.dateTime,
-                                          timeLabel: 'Inicio',
-                                          onDateTimeChanged: (date) {
-                                            _fijarFechaInicial(date);
-                                          },),
-                                      ),
-                                    ],
-                                  ),
+                        //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA DE AGENDAR
+                        ElevatedButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Colors.pink.shade800,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
                                 )
                             ),
-
-                            SizedBox(height: 10),
-
-                            //CONTENEDOR PARA EL TEXTO DE LA FECHA DE FINALIZACIÓN
-                            Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  decoration: BoxDecoration(
-                                      color: Colors.pink.shade800,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          width: 3,
-                                          color: Colors.pink.shade800
-                                      )
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "Día y hora de Finalización:",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.white,
-                                            decoration: TextDecoration.none
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      SizedBox(
-                                        child: CupertinoCalendarPickerButton(
-                                          buttonDecoration: PickerButtonDecoration(
-                                              backgroundColor: Colors.pinkAccent
-                                          ),
-                                          minimumDateTime: DateTime.now(),
-                                          maximumDateTime: DateTime(2080, 12, 12),
-                                          initialDateTime: DateTime.now(),
-                                          currentDateTime: DateTime.now(),
-                                          mode: CupertinoCalendarMode.dateTime,
-                                          timeLabel: 'Final',
-                                          onDateTimeChanged: (date) {
-                                            _fijarFechaFinal(date);
-                                          },),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                            ),
-
-                            //CONTENEDOR PARA LA ELECCIÓN DE COLOR
-                            Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  decoration: BoxDecoration(
-                                      color: Colors.pinkAccent,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          width: 8,
-                                          color: Colors.pink.shade800
-                                      )
-                                  ),
-
-                                  child: ColorPicker(
-                                    pickersEnabled: const <ColorPickerType, bool>{
-                                      ColorPickerType.primary: true,
-                                      ColorPickerType.accent: false,
-                                    },
-                                    selectedPickerTypeColor: Colors.white,
-                                    heading: Text(
-                                      "Elige un color",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
-                                      ),
-                                    ),
-                                    subheading: Text(
-                                      "Elige la variación",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                          decoration: TextDecoration.none
-                                      ),
-                                    ),
-                                    onColorChanged: (Color value) {
-                                      _colorElegido = value;
-                                    },
-                                  ),
-                                )
-                            ),
-
-                            //Empuja el espacio disponible para que los
-                            //botones siempre estén abajo.
-                            Expanded(child: SizedBox()),
-
-                            //ESPACIO PARA LOS BOTONES DE LA PANTALLA DE AGENDAR EVENTO
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //CONTENEDOR DEL BOTÓN DE FINALIZAR AGENDA
-                                ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Colors.pink.shade800,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        )
-                                    ),
-                                    onPressed: () {
-                                      //Llamada a función para agendar un evento
-                                      //al calendario y permite observarlo en el
-                                      // calendario. Necesita el nombre del
-                                      //evento a agendar
-                                      _agendarVisitaLugar(titulo);
-                                      //Reestablece los valores
-                                      _fechaInicio = DateTime.now();
-                                      _fechaFinalizacion = DateTime.now();
-                                      _colorElegido = Colors.pinkAccent;
-
-                                      //Cierra la tarjeta de agregar
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "¡Todo Listo!",
-                                      style: TextStyle(
-                                          color: Colors.white
-                                      ),
-                                    )
-                                ),
-
-                                //CONTENEDOR DEL BOTÓN PARA CERRAR LA TARJETA DE AGENDAR
-                                ElevatedButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Colors.pink.shade800,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        )
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Cerrar",
-                                      style: TextStyle(
-                                          color: Colors.white
-                                      ),
-                                    )
-                                ),
-                              ],
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "Cerrar",
+                              style: TextStyle(
+                                  color: Colors.white
+                              ),
                             )
-                          ],
-                        )
+                        ),
+                      ],
                     )
-                )
-                /* FIN CÓDIGO DE LA TARJETA PARA AGREGAR AL CALENDARIO*/
-
-              ],
+                  ],
+                ),
+              ),
             );
+            /* FIN CÓDIGO DE LA TARJETA PARA AGREGAR AL CALENDARIO*/
           },
           context: context,
         );
